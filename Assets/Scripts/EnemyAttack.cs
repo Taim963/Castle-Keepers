@@ -2,12 +2,13 @@ using UnityEngine;
 using NaughtyAttributes;
 using System.Collections.Generic;
 
-public class EnemyRangedAttack : MonoBehaviour
+public class EnemyAttack : MonoBehaviour
 {
+    public bool projectileAttack = false;
     public int damage = 5;
-    public float lifeTime = 0.5f;
-    public float speed = 15f;
-    public int pierce = 3;
+    [ShowIf("projectileAttack")] public float lifeTime = 0.5f;
+    [ShowIf("projectileAttack")] public float speed = 15f;
+    [ShowIf("projectileAttack")] public int pierce = 3;
     public LayerMask collisionMask;
     public GameObject hitEffect;
 
@@ -15,27 +16,25 @@ public class EnemyRangedAttack : MonoBehaviour
     [HideInInspector] public int baseEnemyDamage;
     [HideInInspector] public bool hasHit = false;
     private HashSet<GameObject> hitPlayers = new HashSet<GameObject>();
-    [HideInInspector] public EnemyRangedAttack script;
 
     private void Start()
     {
-        script = GetComponent<EnemyRangedAttack>();
-
         damageSum = baseEnemyDamage + damage;
 
-        Invoke("ProjectileDeath", lifeTime);
+        if (projectileAttack) Invoke("ProjectileDeath", lifeTime);
+        else Invoke("ProjectileDeath", 0.5f);
     }
 
     private void Update()
     {
-        gameObject.transform.Translate(Vector2.right * speed * Time.deltaTime);
+        if (projectileAttack) gameObject.transform.Translate(Vector2.right * speed * Time.deltaTime);
     }
 
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (IsColliderInLayerMask(other, collisionMask) && !hitPlayers.Contains(other.gameObject))
         {
-            if (pierce > 0)
+            if (pierce > 0  && projectileAttack)
             {
                 pierce--;
                 hitPlayers.Add(other.gameObject);
@@ -47,7 +46,7 @@ public class EnemyRangedAttack : MonoBehaviour
             }
         }
 
-        if (other.CompareTag("Wall"))
+        if (other.CompareTag("Wall") || other.CompareTag("Castle"))
         {
             ProjectileDeath();
         }

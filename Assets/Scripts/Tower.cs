@@ -164,27 +164,28 @@ public class Tower : MonoBehaviour
 
     private bool IsPositionValid()
     {
-        if (towerCollider == null)
-        {
-            Debug.LogError("TowerCollider is not assigned!");
-            return false;
-        }
-
+        // Get all colliders within the circle
         Collider2D[] colliders = Physics2D.OverlapCircleAll(towerCollider.bounds.center, 0.3f);
 
+        // Iterate through the colliders
         foreach (Collider2D collider in colliders)
         {
-            if (collider.CompareTag("Tower") && collider.gameObject != gameObject)
+            // Check if the collider is tagged as "Tower" and is not the current object
+            if (collider.gameObject.CompareTag("Tower") && collider.gameObject != this.gameObject)
             {
-                float distance = Vector2.Distance(transform.position, collider.transform.position);
-                if (distance < 0.3f)
+                // Calculate the distance to the current object
+                float distance = Vector2.Distance(collider.bounds.center, towerCollider.bounds.center);
+
+                // If the distance is less than 1.5, return false
+                if (distance < 1.5f)
                 {
-                    Debug.Log($"Too close to another tower (distance: {distance}).");
                     return false;
                 }
             }
         }
 
+        // If all conditions are met, return true
         return true;
     }
+
 }

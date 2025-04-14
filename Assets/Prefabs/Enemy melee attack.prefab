@@ -12,10 +12,10 @@ GameObject:
   - component: {fileID: 1796996076418731392}
   - component: {fileID: 7963305585190791546}
   - component: {fileID: 421958171270732473}
-  - component: {fileID: 3515775615190750200}
+  - component: {fileID: 5546947258165966263}
   m_Layer: 0
   m_Name: Enemy melee attack
-  m_TagString: Hurt
+  m_TagString: Hurt1
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -154,7 +154,7 @@ CapsuleCollider2D:
   m_Offset: {x: -0.00000016945174, y: 0.0026584794}
   m_Size: {x: 2.2968366, y: 1.0797603}
   m_Direction: 0
---- !u!114 &3515775615190750200
+--- !u!114 &5546947258165966263
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -163,14 +163,18 @@ MonoBehaviour:
   m_GameObject: {fileID: 1826483107877130399}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f4ffe541880d02047a6ab396387ec5e7, type: 3}
+  m_Script: {fileID: 11500000, guid: eb366901a5885854ba442e27c41147fa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  projectileAttack: 0
   damage: 5
-  hitEffect: {fileID: 5764864091735545940, guid: aaec1febfb4f9d049a7a95f33b6fcbd3, type: 3}
+  lifeTime: 0.5
+  speed: 15
+  pierce: 3
   collisionMask:
     serializedVersion: 2
     m_Bits: 128
+  hitEffect: {fileID: 5764864091735545940, guid: aaec1febfb4f9d049a7a95f33b6fcbd3, type: 3}
   damageSum: 0
   baseEnemyDamage: 0
   hasHit: 0

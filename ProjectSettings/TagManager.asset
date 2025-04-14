@@ -7,8 +7,11 @@ TagManager:
   - Wall
   - Enemy
   - Projectile
-  - Hurt
   - Tower
+  - Hurt1
+  - Hurt2
+  - Troop
+  - Castle
   layers:
   - Default
   - TransparentFX
@@ -22,7 +25,7 @@ TagManager:
   - Effects
   - Enemy Attacks
   - Towers
-  - 
+  - Castle
   - 
   - 
   - 

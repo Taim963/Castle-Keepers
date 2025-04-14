@@ -1,6 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.EventSystems;
+
 
 public class PlayerInteractions : MonoBehaviour
 {
@@ -26,7 +29,11 @@ public class PlayerInteractions : MonoBehaviour
     public void StartPlacingTower(int index)
     {
         if (!placed)
+        {
             Destroy(towers[value]); // Destroy previous tower if still in placement mode
+            placed = true;
+        }
+            
         else
             StartCoroutine(SelectTower(index));
     }
@@ -41,6 +48,7 @@ public class PlayerInteractions : MonoBehaviour
         // Wait until the left mouse button is pressed AND the tower is fully inside a wall.
         yield return new WaitUntil(() => Input.GetMouseButtonDown(0) && tower.fullyInside);
 
+        if (EventSystem.current.IsPointerOverGameObject()) yield break;
         GetColliders();
         PlaceTower();
     }

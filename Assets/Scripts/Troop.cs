@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
-public class Enemy : MonoBehaviour
+public class Troop : MonoBehaviour
 {
     // Navigation
     [Header("Navigation")]
@@ -33,7 +33,6 @@ public class Enemy : MonoBehaviour
 
 
     private bool isAttacking = false;
-    private bool isFirstAttack = true;
 
     private void Start()
     {
@@ -49,8 +48,7 @@ public class Enemy : MonoBehaviour
 
     private void Update()
     {
-        if (target == null) return;
-
+        if (target == null || !CanSeeTarget()) GetTarget();
         if (Vector2.Distance(transform.position, target.position) <= attackRange && CanSeeTarget())
         {
             if (isAttacking) return;
@@ -63,38 +61,46 @@ public class Enemy : MonoBehaviour
         }
     }
 
+    private void GetTarget()
+    {
+        // Find the closest target with the "Enemy" tag
+        GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy"); // Get all enemies in the scene
+        float closestDistance = Mathf.Infinity; // Set an initially large closest distance
+        Transform closestEnemy = null; // Store the closest enemy
+
+        foreach (GameObject enemy in enemies)
+        {
+            float distance = Vector2.Distance(transform.position, enemy.transform.position); // Calculate distance
+
+            if (distance < closestDistance) // Check if this enemy is closer than the previous
+            {
+                closestDistance = distance;
+                closestEnemy = enemy.transform; // Update the closest enemy
+            }
+        }
+
+        target = closestEnemy; // Assign the closest enemy's transform to the target variable
+    }
+
+
     private IEnumerator Attack(GameObject attackPrefab)
     {
         while (Vector2.Distance(transform.position, target.position) <= attackRange && CanSeeTarget())
         {
-            CancelInvoke("ResetFirstAttack");
             agent.ResetPath();
             agent.velocity = Vector2.zero;
-
-            if (isFirstAttack) yield return new WaitForSeconds(1);
-            isFirstAttack = false;
 
             PerformAttack(attackPrefab);
             yield return new WaitForSeconds(attackCooldown);
         }
 
-        Invoke("ResetFirstAttack", 0.5f);
+
         isAttacking = false;
         agent.SetDestination(target.position);
     }
 
-    private void ResetFirstAttack()
-    {
-        isFirstAttack = true;
-    }
-
     private void PerformAttack(GameObject attackPrefab)
     {
-        EnemyAttack attack = attackPrefab.GetComponent<EnemyAttack>();
-        attack.baseEnemyDamage = damage;
-
-
-
         // Calculate direction and offset for the attack spawn position
         Vector2 direction = target.position - transform.position;
         Vector2 normalizedDirection = direction.normalized;
@@ -103,9 +109,12 @@ public class Enemy : MonoBehaviour
         // Calculate rotation angle so that the attack faces the target
         float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
 
-        // Instantiate the attack prefab
-        Instantiate(attackPrefab, transform.position + offset, Quaternion.Euler(0, 0, angle));
+        // Cast a ray in the direction of the target
+        RaycastHit2D hit = Physics2D.Raycast(transform.position, normalizedDirection, attackRange, rayCastCollide);
+        Vector3 spawnPosition = hit.point;
+        Instantiate(attackPrefab, spawnPosition, Quaternion.Euler(0, 0, angle));
     }
+
 
     private bool CanSeeTarget()
     {
@@ -119,31 +128,13 @@ public class Enemy : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.CompareTag("Projectile") && !hitAttacks.Contains(other.gameObject))
+        if (other.CompareTag("Hurt1") || other.CompareTag("Hurt2") && !hitAttacks.Contains(other.gameObject))
         {
-            print(other.gameObject.name);
             Projectile projectile = other.GetComponent<Projectile>();
-            TowerAttack towerAttack = other.GetComponent<TowerAttack>();
-            TroopAttack troopAttack = other.GetComponent<TroopAttack>();
-
             if (projectile != null)
             {
                 TakeDamage(projectile.damageSum);
                 ApplyKnockback(projectile.KnockbackForce, transform.position - other.transform.position);
-
-            }
-            if (towerAttack != null)
-            {
-                TakeDamage(towerAttack.damage);
-                ApplyKnockback(towerAttack.KnockbackForce, transform.position - other.transform.position);
-
-            }
-            if (troopAttack != null)
-            {
-                TakeDamage(troopAttack.damage);
-                ApplyKnockback(troopAttack.knockbackForce, transform.position - other.transform.position);
-                print("TroopAttack");
-
             }
             hitAttacks.Add(other.gameObject);
         }

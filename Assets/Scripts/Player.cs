@@ -34,10 +34,21 @@ public class Player : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.CompareTag("Hurt"))
+        if (other.CompareTag("Hurt2"))
         {
-            EnemyRangedAttack enemyAttack = other.GetComponent<EnemyRangedAttack>();
+            EnemyAttack enemyAttack = other.GetComponent<EnemyAttack>();
             
+            if (!enemyAttack.hasHit)
+            {
+                TakeDamage(enemyAttack.damageSum);
+                enemyAttack.hasHit = true;
+            }
+        }
+
+        if (other.CompareTag("Hurt1"))
+        {
+            EnemyAttack enemyAttack = other.GetComponent<EnemyAttack>();
+
             if (!enemyAttack.hasHit)
             {
                 TakeDamage(enemyAttack.damageSum);

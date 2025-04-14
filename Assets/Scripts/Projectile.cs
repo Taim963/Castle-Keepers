@@ -47,7 +47,7 @@ public class Projectile : MonoBehaviour
             }
         }
 
-        if (other.CompareTag("Wall"))
+        if (other.CompareTag("Wall") || other.CompareTag("Castle"))
         {
             ProjectileDeath();
         }
@@ -69,13 +69,32 @@ public class Projectile : MonoBehaviour
         Destroy(hitInstance, 0.3f);
     }
 
-    private void ChangeColorAndScale(GameObject hitInstance)
+    private void ChangeColorAndScale(GameObject deathEffectInstance)
     {
-        ParticleSystem.MainModule main = hitInstance.GetComponent<ParticleSystem>().main;
+        // Ensure the deathEffectInstance has a ParticleSystem component
+        ParticleSystem particleSystem = deathEffectInstance.GetComponent<ParticleSystem>();
+        if (particleSystem == null)
+        {
+            Debug.LogError("No ParticleSystem component found on the deathEffectInstance!");
+            return;
+        }
+
+        // Ensure the current GameObject has a SpriteRenderer component
         SpriteRenderer spriteRenderer = GetComponent<SpriteRenderer>();
+        if (spriteRenderer == null)
+        {
+            Debug.LogError("No SpriteRenderer component found on the current GameObject!");
+            return;
+        }
+
+        // Safely access and modify the ParticleSystem's MainModule
+        ParticleSystem.MainModule main = particleSystem.main;
         main.startColor = spriteRenderer.color;
-        hitInstance.transform.localScale = Vector2.Scale(spriteRenderer.transform.localScale, hitInstance.transform.localScale);
+
+        // Adjust the scale of the death effect instance
+        deathEffectInstance.transform.localScale = Vector2.Scale(spriteRenderer.transform.localScale, deathEffectInstance.transform.localScale);
     }
+
 
     private bool IsColliderInLayerMask(Collider2D collider, LayerMask layerMask)
     {

@@ -2,32 +2,26 @@ using UnityEngine;
 using NaughtyAttributes;
 using System.Collections.Generic;
 
-public class EnemyMeleeAttack : MonoBehaviour
+public class TroopAttack : MonoBehaviour
 {
-    public int damage = 5;
+    public int damage = 20;
+    public float knockbackForce = 2f;
     public GameObject hitEffect;
     public LayerMask collisionMask;
 
-    [HideInInspector] public int damageSum;
-    [HideInInspector] public int baseEnemyDamage;
+    private List<GameObject> hitEnemies = new List<GameObject>();
     [HideInInspector] public bool hasHit = false;
-    private HashSet<GameObject> hitPlayers = new HashSet<GameObject>();
-    [HideInInspector] public EnemyMeleeAttack script;
 
     private void Start()
     {
-        script = GetComponent<EnemyMeleeAttack>();
-
-        damageSum = baseEnemyDamage + damage;
-
         Destroy(gameObject, 0.5f);
     }
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (IsColliderInLayerMask(other, collisionMask) && !hitPlayers.Contains(other.gameObject))
+        if (IsColliderInLayerMask(other, collisionMask) && !hitEnemies.Contains(other.gameObject))
         {
-            hitPlayers.Add(other.gameObject);
+            hitEnemies.Add(other.gameObject);
         }
     }
 
