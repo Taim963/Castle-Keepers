@@ -624,7 +624,7 @@ MonoBehaviour:
   hitScanWeapon: 0
   burstWeapon: 0
   damage: 5
-  bulletsPerBurst: 3
+  bulletsPerBurst: 20
   burstCooldown: 0
   cooldown: 0.3
   randomSpread: 0
@@ -2127,8 +2127,8 @@ MonoBehaviour:
     spawnChance: 1
   - enemyPrefab: {fileID: 4075929206208946003, guid: 0bc27553b7416234084b097ffdc17f6d, type: 3}
     spawnChance: 0.5
-  spawnDelay: 0
-  enemiesToSpawn: 1000
+  spawnDelay: 1
+  enemiesToSpawn: 20
 --- !u!4 &1062807845
 Transform:
   m_ObjectHideFlags: 0
