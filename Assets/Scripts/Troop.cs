@@ -7,7 +7,8 @@ public class Troop : MonoBehaviour
 {
     // Navigation
     [Header("Navigation")]
-    public Transform target;
+    private Vector2 target;         // Closest point on the enemy collider
+    private Transform location;     // The enemy transform from which we got the closest point
     public LayerMask rayCastCollide;
     private NavMeshAgent agent;
 
@@ -20,19 +21,24 @@ public class Troop : MonoBehaviour
 
     // Attack Settings
     [Header("Attack Settings")]
+    public bool rangeAttack = false;
     public int damage = 5;
     public float attackRange = 3f;
     public float attackOffset = 1.2f;
     public float attackCooldown = 1f;
-    public float knockbackResistance = 0.5f; // 0 = no resistance (full knockback), 1 = full resistance (no knockback)
+    public float knockbackResistance = 0.5f; // 0 = no resistance, 1 = full resistance
     public GameObject[] attackPrefab;
 
     // Effects
     [Header("Effects")]
     public GameObject deathEffect;
 
-
     private bool isAttacking = false;
+
+    private void Awake()
+    {
+        
+    }
 
     private void Start()
     {
@@ -48,8 +54,9 @@ public class Troop : MonoBehaviour
 
     private void Update()
     {
-        if (target == null || !CanSeeTarget()) GetTarget();
-        if (Vector2.Distance(transform.position, target.position) <= attackRange && CanSeeTarget())
+        GetTarget();
+
+        if (Vector2.Distance(transform.position, target) <= attackRange && CanSeeTarget())
         {
             if (isAttacking) return;
             isAttacking = true;
@@ -57,35 +64,44 @@ public class Troop : MonoBehaviour
         }
         else
         {
-            agent.SetDestination(target.position);
+            agent.SetDestination(target);
         }
     }
 
     private void GetTarget()
     {
-        // Find the closest target with the "Enemy" tag
-        GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy"); // Get all enemies in the scene
-        float closestDistance = Mathf.Infinity; // Set an initially large closest distance
-        Transform closestEnemy = null; // Store the closest enemy
+        // Find all enemies in the scene
+        GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
+        float closestDistance = Mathf.Infinity;
+        Vector2 bestPoint = Vector2.zero;
+        Transform bestEnemyTransform = null;
 
+        // For each enemy get its collider's closest point to this troop and choose the closest one.
         foreach (GameObject enemy in enemies)
         {
-            float distance = Vector2.Distance(transform.position, enemy.transform.position); // Calculate distance
+            Collider2D enemyCollider = enemy.GetComponent<Collider2D>();
+            if (enemyCollider == null)
+                continue;
 
-            if (distance < closestDistance) // Check if this enemy is closer than the previous
+            // Get the closest point on the enemy's collider
+            Vector2 candidatePoint = enemyCollider.ClosestPoint(transform.position);
+            float distance = Vector2.Distance(transform.position, candidatePoint);
+
+            if (distance < closestDistance)
             {
                 closestDistance = distance;
-                closestEnemy = enemy.transform; // Update the closest enemy
+                bestPoint = candidatePoint;
+                bestEnemyTransform = enemy.transform;
             }
         }
 
-        target = closestEnemy; // Assign the closest enemy's transform to the target variable
+        target = bestPoint;
+        location = bestEnemyTransform;
     }
-
 
     private IEnumerator Attack(GameObject attackPrefab)
     {
-        while (Vector2.Distance(transform.position, target.position) <= attackRange && CanSeeTarget())
+        while (Vector2.Distance(transform.position, target) <= attackRange && CanSeeTarget())
         {
             agent.ResetPath();
             agent.velocity = Vector2.zero;
@@ -94,41 +110,44 @@ public class Troop : MonoBehaviour
             yield return new WaitForSeconds(attackCooldown);
         }
 
-
         isAttacking = false;
-        agent.SetDestination(target.position);
+        agent.SetDestination(target);
     }
 
     private void PerformAttack(GameObject attackPrefab)
     {
-        // Calculate direction and offset for the attack spawn position
-        Vector2 direction = target.position - transform.position;
+        // Calculate the attack direction and offset for spawning the attack prefab
+        Vector2 direction = target - (Vector2)transform.position;
         Vector2 normalizedDirection = direction.normalized;
         Vector3 offset = new Vector3(normalizedDirection.x, normalizedDirection.y, 0) * attackOffset;
-
-        // Calculate rotation angle so that the attack faces the target
         float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
 
-        // Cast a ray in the direction of the target
-        RaycastHit2D hit = Physics2D.Raycast(transform.position, normalizedDirection, attackRange, rayCastCollide);
-        Vector3 spawnPosition = hit.point;
-        Instantiate(attackPrefab, spawnPosition, Quaternion.Euler(0, 0, angle));
+        if (!rangeAttack)
+        {
+            RaycastHit2D hit = Physics2D.Raycast(transform.position, normalizedDirection, attackRange, rayCastCollide);
+            Vector3 spawnPosition = hit.point;
+            Instantiate(attackPrefab, spawnPosition, Quaternion.Euler(0, 0, angle));
+        }
+        else
+        {
+            Instantiate(attackPrefab, transform.position + offset, Quaternion.Euler(0, 0, angle));
+        }
     }
-
 
     private bool CanSeeTarget()
     {
-        if (target == null) return false;
-        // Calculate the direction toward the target and perform a raycast
-        Vector2 direction = (target.position - transform.position).normalized;
+        if (location == null)
+            return false;
+
+        Vector2 direction = (target - (Vector2)transform.position).normalized;
         RaycastHit2D hit = Physics2D.Raycast(transform.position, direction, attackRange, rayCastCollide);
         Debug.DrawRay(transform.position, direction * attackRange, Color.red);
-        return hit.collider != null && hit.collider.transform == target;
+        return hit.collider != null && hit.collider.transform == location;
     }
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.CompareTag("Hurt1") || other.CompareTag("Hurt2") && !hitAttacks.Contains(other.gameObject))
+        if ((other.CompareTag("Hurt1") || other.CompareTag("Hurt2")) && !hitAttacks.Contains(other.gameObject))
         {
             Projectile projectile = other.GetComponent<Projectile>();
             if (projectile != null)
@@ -140,16 +159,11 @@ public class Troop : MonoBehaviour
         }
     }
 
-    // Restored old version of knockback that doesn't stop the agent
     private void ApplyKnockback(float knockbackForce, Vector2 direction)
     {
-        // Normalize the direction vector and scale it by the knockback force
         Vector2 knockbackDirection = direction.normalized * knockbackForce;
-
-        // Apply the calculated knockback to the agent's velocity
         agent.velocity = knockbackDirection / knockbackResistance;
     }
-
 
     public void TakeDamage(int damage)
     {
@@ -175,6 +189,9 @@ public class Troop : MonoBehaviour
         ParticleSystem.MainModule main = deathEffectInstance.GetComponent<ParticleSystem>().main;
         SpriteRenderer spriteRenderer = GetComponentInChildren<SpriteRenderer>();
         main.startColor = spriteRenderer.color;
-        deathEffectInstance.transform.localScale = Vector2.Scale(spriteRenderer.transform.localScale, deathEffectInstance.transform.localScale);
+        deathEffectInstance.transform.localScale = Vector2.Scale(
+            spriteRenderer.transform.localScale,
+            deathEffectInstance.transform.localScale
+        );
     }
 }

@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 4411010016521349209}
   - component: {fileID: 1457687577258628384}
   m_Layer: 0
-  m_Name: Troop
+  m_Name: Knight troop
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -69,12 +69,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 43d96b1079df41949b3817e65486eef6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  target: {fileID: 0}
   rayCastCollide:
     serializedVersion: 2
     m_Bits: 320
   healthBar: {fileID: 6130512922934496310}
   maxHealth: 30
+  rangeAttack: 0
   damage: 5
   attackRange: 2
   attackOffset: 2
@@ -99,7 +99,7 @@ BoxCollider2D:
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 128
   m_LayerOverridePriority: 0
   m_ForceSendLayers:
     serializedVersion: 2

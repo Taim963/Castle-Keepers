@@ -9,7 +9,11 @@ public class PlayerInteractions : MonoBehaviour
 {
     public GameObject[] towerPrefabs;
     private GameObject[] towers = new GameObject[100];
-    private int value = 0;
+    private int towerValue = 0;
+
+    public GameObject[] troopPrefabs;
+    private GameObject[] troops = new GameObject[100];
+    private int troopValue = 0;
 
     private bool placed = true;
     private CircleCollider2D bigTriggerColliderr;
@@ -22,7 +26,7 @@ public class PlayerInteractions : MonoBehaviour
         Vector2 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         if (!placed)
         {
-            towers[value].transform.position = mousePos;
+            towers[towerValue].transform.position = mousePos;
         }
     }
 
@@ -30,7 +34,7 @@ public class PlayerInteractions : MonoBehaviour
     {
         if (!placed)
         {
-            Destroy(towers[value]); // Destroy previous tower if still in placement mode
+            Destroy(towers[towerValue]); // Destroy previous tower if still in placement mode
             placed = true;
         }
             
@@ -38,11 +42,30 @@ public class PlayerInteractions : MonoBehaviour
             StartCoroutine(SelectTower(index));
     }
 
+    public void StartPlacingTroop(int index)
+    {
+        if (!placed)
+        {
+            Destroy(troops[troopValue]); // Destroy previous troop if still in placement mode
+            placed = true;
+        }
+
+        else
+            StartCoroutine(SelectTroop(index));
+    }
+
+    public IEnumerator SelectTroop(int index)
+    {
+        troops[troopValue] = Instantiate(troopPrefabs[index], new Vector2(0, -6), Quaternion.identity);
+        yield break;
+        // later
+    }
+
     public IEnumerator SelectTower(int index)
     {
         // Instantiate the tower at an initial position.
-        towers[value] = Instantiate(towerPrefabs[index], Vector2.zero, Quaternion.identity);
-        tower = towers[value].GetComponent<Tower>();
+        towers[towerValue] = Instantiate(towerPrefabs[index], Vector2.zero, Quaternion.identity);
+        tower = towers[towerValue].GetComponent<Tower>();
         placed = false;
 
         // Wait until the left mouse button is pressed AND the tower is fully inside a wall.
@@ -59,13 +82,13 @@ public class PlayerInteractions : MonoBehaviour
         bigTriggerColliderr.excludeLayers = LayerMask.GetMask("Enemy Attacks");
         smallTriggerCollider.excludeLayers = 0;
         placed = true;
-        value++;
+        towerValue++;
     }
 
     private void GetColliders()
     {
         // The tower is expected to have 2 CircleCollider2D components.
-        CircleCollider2D[] colliders = towers[value].GetComponents<CircleCollider2D>();
+        CircleCollider2D[] colliders = towers[towerValue].GetComponents<CircleCollider2D>();
         if (colliders.Length < 2)
         {
             Debug.LogError("Not enough colliders on the tower prefab!");

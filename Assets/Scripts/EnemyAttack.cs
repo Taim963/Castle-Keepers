@@ -60,7 +60,7 @@ public class EnemyAttack : MonoBehaviour
 
     private void ProjectileDeath()
     {
-        GameObject hitInstance = Instantiate(hitEffect, transform.position, Quaternion.identity);
+        GameObject hitInstance = Instantiate(hitEffect, transform.position, transform.rotation);
         ChangeColorAndScale(hitInstance);
         Destroy(hitInstance, 0.3f);
         Destroy(gameObject);

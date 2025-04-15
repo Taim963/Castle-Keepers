@@ -12,6 +12,7 @@ TagManager:
   - Hurt2
   - Troop
   - Castle
+  - Path
   layers:
   - Default
   - TransparentFX

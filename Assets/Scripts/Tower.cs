@@ -12,25 +12,26 @@ public class Tower : MonoBehaviour
     [Header("Collision Settings")]
     public Collider2D towerCollider; // Assigned in Inspector
 
-    [HideInInspector] public bool fullyInside = false;
+    [HideInInspector]
+    public bool fullyInside = false;
 
     // === Private State Variables ===
     private List<Enemy> enemiesInRange = new List<Enemy>();
     private Transform target;
     private bool isAttacking = false;
 
-    // === Coroutines ===
+    // === Coroutine Handles ===
     private Coroutine wallCheckCoroutine;
 
     // === Unity Callbacks ===
     private void Start()
     {
-
+        // Any initialization logic you require
     }
 
     private void Update()
     {
-        // Automatically start attacking if conditions are met
+        // Automatically start attacking if at least one enemy is in range and we're not already attacking.
         if (enemiesInRange.Count > 0 && target == null && !isAttacking)
         {
             StartCoroutine(Attack());
@@ -45,6 +46,7 @@ public class Tower : MonoBehaviour
         }
         else if (other.CompareTag("Wall"))
         {
+            // Start checking if we are fully inside the wall.
             StartWallCheck(other);
         }
     }
@@ -68,7 +70,6 @@ public class Tower : MonoBehaviour
         if (enemy != null && !enemiesInRange.Contains(enemy))
         {
             enemiesInRange.Add(enemy);
-            Debug.Log("Enemy added to range.");
         }
     }
 
@@ -78,15 +79,15 @@ public class Tower : MonoBehaviour
         if (enemy != null)
         {
             enemiesInRange.Remove(enemy);
-            Debug.Log("Enemy removed from range.");
         }
     }
 
     private void StartWallCheck(Collider2D wallCollider)
     {
         if (wallCheckCoroutine != null)
+        {
             StopCoroutine(wallCheckCoroutine);
-
+        }
         wallCheckCoroutine = StartCoroutine(IsFullyInside(wallCollider));
     }
 
@@ -102,32 +103,34 @@ public class Tower : MonoBehaviour
 
     private IEnumerator IsFullyInside(Collider2D wallCollider)
     {
+        // Run the check on a FixedUpdate cycle to synchronize with Unity's physics engine.
         while (true)
         {
+            // First, ensure that the full bounds of the tower are inside the wall.
             if (wallCollider.bounds.Contains(towerCollider.bounds.min) &&
-                wallCollider.bounds.Contains(towerCollider.bounds.max) &&
-                IsPositionValid())
+                wallCollider.bounds.Contains(towerCollider.bounds.max))
             {
-                fullyInside = true;
-                Debug.Log("Tower is fully inside the wall.");
-                yield break;
+                // Additionally, verify that there isn’t an overlapping tower nearby.
+                if (IsPositionValid())
+                {
+                    fullyInside = true;
+                    yield break; // Position valid—exit the check.
+                }
             }
-            else
-            {
-                fullyInside = false;
-            }
-            yield return null;
+
+            fullyInside = false;
+            yield return new WaitForFixedUpdate();
         }
     }
 
     private IEnumerator Attack()
     {
         isAttacking = true;
-
+        // Continue attacking while there are enemies in range.
         while (enemiesInRange.Count > 0)
         {
-            // Set the target to the first enemy in range
-            target = enemiesInRange[0].transform;
+            // Set the target using the first enemy in the list.
+            target = enemiesInRange[0]?.transform;
 
             if (target != null)
             {
@@ -135,7 +138,7 @@ public class Tower : MonoBehaviour
             }
             else
             {
-                // Remove null targets
+                // If the enemy is no longer valid, remove it.
                 enemiesInRange.RemoveAt(0);
             }
 
@@ -148,44 +151,32 @@ public class Tower : MonoBehaviour
 
     private void TryAttack(Transform target)
     {
-        Debug.Log("Fire!");
+        // Calculate attack direction and spawn offset.
         Vector2 direction = (Vector2)(target.position - transform.position);
         Vector3 offset = direction.normalized * 0.5f;
         float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
 
-        // Instantiate attack prefab
-        Instantiate(
-            attackPrefab,
-            transform.position + offset,
-            Quaternion.Euler(0f, 0f, angle)
-        );
-        Debug.Log($"Attacking {target.name}");
+        // Instantiate the attack prefab facing the target.
+        Instantiate(attackPrefab, transform.position + offset, Quaternion.Euler(0f, 0f, angle));
     }
 
     private bool IsPositionValid()
     {
-        // Get all colliders within the circle
+        // Use OverlapCircleAll to check for nearby towers.
         Collider2D[] colliders = Physics2D.OverlapCircleAll(towerCollider.bounds.center, 0.3f);
 
-        // Iterate through the colliders
         foreach (Collider2D collider in colliders)
         {
-            // Check if the collider is tagged as "Tower" and is not the current object
-            if (collider.gameObject.CompareTag("Tower") && collider.gameObject != this.gameObject)
+            if (collider.CompareTag("Tower") && collider.gameObject != gameObject)
             {
-                // Calculate the distance to the current object
                 float distance = Vector2.Distance(collider.bounds.center, towerCollider.bounds.center);
-
-                // If the distance is less than 1.5, return false
-                if (distance < 1.5f)
+                // Ensure towers maintain a minimum spacing.
+                if (distance < 1f)
                 {
                     return false;
                 }
             }
         }
-
-        // If all conditions are met, return true
         return true;
     }
-
 }

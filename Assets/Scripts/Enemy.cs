@@ -7,7 +7,9 @@ public class Enemy : MonoBehaviour
 {
     // Navigation
     [Header("Navigation")]
-    public Transform target;
+    private Vector2 target;
+    private Transform location;
+    public string targetTag = "Castle";
     public LayerMask rayCastCollide;
     private NavMeshAgent agent;
 
@@ -20,6 +22,7 @@ public class Enemy : MonoBehaviour
 
     // Attack Settings
     [Header("Attack Settings")]
+    public bool rangeAttack = false;
     public int damage = 5;
     public float attackRange = 3f;
     public float attackOffset = 1.2f;
@@ -49,9 +52,9 @@ public class Enemy : MonoBehaviour
 
     private void Update()
     {
-        if (target == null) return;
+        GetTarget();
 
-        if (Vector2.Distance(transform.position, target.position) <= attackRange && CanSeeTarget())
+        if (Vector2.Distance(transform.position, target) <= attackRange && CanSeeTarget())
         {
             if (isAttacking) return;
             isAttacking = true;
@@ -59,13 +62,24 @@ public class Enemy : MonoBehaviour
         }
         else
         {
-            agent.SetDestination(target.position);
+            agent.SetDestination(target);
         }
+        
     }
+
+    private void GetTarget()
+    {
+        GameObject player = GameObject.FindGameObjectWithTag(targetTag);
+        location = player.transform;
+        Collider2D playerCollider = player.GetComponent<Collider2D>();
+        Vector2 currentPosition = transform.position;
+        target = playerCollider.ClosestPoint(currentPosition);
+    }
+
 
     private IEnumerator Attack(GameObject attackPrefab)
     {
-        while (Vector2.Distance(transform.position, target.position) <= attackRange && CanSeeTarget())
+        while (Vector2.Distance(transform.position, target) <= attackRange && CanSeeTarget())
         {
             CancelInvoke("ResetFirstAttack");
             agent.ResetPath();
@@ -80,7 +94,7 @@ public class Enemy : MonoBehaviour
 
         Invoke("ResetFirstAttack", 0.5f);
         isAttacking = false;
-        agent.SetDestination(target.position);
+        agent.SetDestination(target);
     }
 
     private void ResetFirstAttack()
@@ -96,32 +110,39 @@ public class Enemy : MonoBehaviour
 
 
         // Calculate direction and offset for the attack spawn position
-        Vector2 direction = target.position - transform.position;
+        Vector2 direction =  target - (Vector2)transform.position;
         Vector2 normalizedDirection = direction.normalized;
         Vector3 offset = new Vector3(normalizedDirection.x, normalizedDirection.y, 0) * attackOffset;
 
         // Calculate rotation angle so that the attack faces the target
         float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
 
-        // Instantiate the attack prefab
-        Instantiate(attackPrefab, transform.position + offset, Quaternion.Euler(0, 0, angle));
+        // Cast a ray in the direction of the target
+        if (!rangeAttack)
+        {
+            RaycastHit2D hit = Physics2D.Raycast(transform.position, normalizedDirection, attackRange, rayCastCollide);
+            Vector3 spawnPosition = hit.point;
+            Instantiate(attackPrefab, spawnPosition, Quaternion.Euler(0, 0, angle));
+        }
+        else
+        {
+            Instantiate(attackPrefab, transform.position + offset, Quaternion.Euler(0, 0, angle));
+        }
     }
 
     private bool CanSeeTarget()
     {
-        if (target == null) return false;
         // Calculate the direction toward the target and perform a raycast
-        Vector2 direction = (target.position - transform.position).normalized;
+        Vector2 direction = (target - (Vector2)transform.position).normalized;
         RaycastHit2D hit = Physics2D.Raycast(transform.position, direction, attackRange, rayCastCollide);
         Debug.DrawRay(transform.position, direction * attackRange, Color.red);
-        return hit.collider != null && hit.collider.transform == target;
+        return hit.collider != null && hit.collider.transform == location;
     }
 
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (other.CompareTag("Projectile") && !hitAttacks.Contains(other.gameObject))
         {
-            print(other.gameObject.name);
             Projectile projectile = other.GetComponent<Projectile>();
             TowerAttack towerAttack = other.GetComponent<TowerAttack>();
             TroopAttack troopAttack = other.GetComponent<TroopAttack>();
@@ -142,7 +163,6 @@ public class Enemy : MonoBehaviour
             {
                 TakeDamage(troopAttack.damage);
                 ApplyKnockback(troopAttack.knockbackForce, transform.position - other.transform.position);
-                print("TroopAttack");
 
             }
             hitAttacks.Add(other.gameObject);
