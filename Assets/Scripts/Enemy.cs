@@ -17,6 +17,7 @@ public class Enemy : MonoBehaviour
     [Header("Health Settings")]
     public Health healthBar;
     public int maxHealth = 30;
+    public int goldValue = 2;
     private int health;
     private HashSet<GameObject> hitAttacks = new HashSet<GameObject>();
 
@@ -40,6 +41,7 @@ public class Enemy : MonoBehaviour
 
     private void Start()
     {
+        GameManager.instance.RegisterEnemy(gameObject);
         // Initialize NavMeshAgent
         agent = GetComponent<NavMeshAgent>();
         agent.updateRotation = false;
@@ -193,6 +195,7 @@ public class Enemy : MonoBehaviour
 
     private void Die()
     {
+        GameManager.instance.OnEnemyDeath(gameObject, goldValue);
         GameObject deathEffectInstance = Instantiate(deathEffect, transform.position, Quaternion.identity);
         ChangeColorAndScale(deathEffectInstance);
         Destroy(deathEffectInstance, 0.6f);

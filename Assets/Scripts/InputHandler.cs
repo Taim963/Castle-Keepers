@@ -1,35 +1,35 @@
 using UnityEngine;
+using UnityEngine.Events;
 
 public class InputHandler : MonoBehaviour
 {
-    private Weapon weapon;
+    public UnityEvent onLeftClick;
+    public UnityEvent onEClick;
 
     private bool editMode = false;
+    private bool lostGame = false;
 
-    private void Start()
-    {
-        weapon = FindAnyObjectByType<Weapon>();
-    }
 
     private void Update()
     {
+        if (lostGame)
+        {
+            return;
+        }
+
         if (Input.GetKeyDown(KeyCode.E))
         {
-            // Toggle editMode state
             editMode = !editMode;
-
-            // Set cursor visibility and lock state
-            Cursor.visible = editMode;
-            Cursor.lockState = editMode ? CursorLockMode.None : CursorLockMode.Locked;
-
-            Debug.Log($"Edit Mode toggled: {editMode} (Cursor visible: {Cursor.visible}, Lock state: {Cursor.lockState})");
         }
 
-        // Left mouse click behavior
         if (Input.GetMouseButtonDown(0) && !editMode)
         {
-            if (weapon != null)
-                weapon.TryFire();
+            onLeftClick.Invoke();
         }
+    }
+
+    public void SetLostGame()
+    {
+        lostGame = true;
     }
 }

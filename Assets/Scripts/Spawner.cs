@@ -19,23 +19,17 @@ public class Spawner : MonoBehaviour
     public float spawnDelay = 2f;        // Time delay between spawns
     public int enemiesToSpawn = 10;
 
-    private int spawnCount = 0;
-    private bool roundStarted = false;
+    [HideInInspector] public int spawnCount = 0;
+    [HideInInspector] public bool allEnemiesSpawned = false;
 
-    public void StartSpawning()
-    {
-        if (!roundStarted)
-        { 
-            StartCoroutine(SpawnEnemies());
-            roundStarted = true;
-        }
-    }
 
-    private IEnumerator SpawnEnemies()
+
+    public IEnumerator SpawnEnemies()
     {
         
         while (true)
         {
+            allEnemiesSpawned = false;
             yield return new WaitForSeconds(spawnDelay);
 
             // Choose a random edge of the rectangle (0 = top, 1 = bottom, 2 = left, 3 = right)
@@ -73,8 +67,8 @@ public class Spawner : MonoBehaviour
             if (spawnCount >= enemiesToSpawn)
             {
                 Debug.Log("All enemies spawned.");
-                roundStarted = false;
                 spawnCount = 0; // Reset spawn count for the next round
+                allEnemiesSpawned = true;
                 yield break;
             }
         }
