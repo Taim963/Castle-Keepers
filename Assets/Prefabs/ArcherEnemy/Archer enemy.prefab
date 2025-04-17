@@ -13,8 +13,9 @@ GameObject:
   - component: {fileID: 2929693825325491678}
   - component: {fileID: 8792657379192295750}
   - component: {fileID: 4786504084422313630}
+  - component: {fileID: 4257650072081865744}
   m_Layer: 6
-  m_Name: Enemy 2
+  m_Name: Archer enemy
   m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -49,20 +50,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a633e14efaa2c7e4db22bf3f78363135, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  rayCastCollide:
-    serializedVersion: 2
-    m_Bits: 384
+  enemySO: {fileID: 11400000, guid: 9a9f6dfe0593a6c46a6258d78e144b4a, type: 2}
   healthBar: {fileID: 217684238292470284}
-  maxHealth: 30
-  rangeAttack: 1
-  damage: 5
-  attackRange: 10
-  attackOffset: 1
-  attackCooldown: 1
-  knockbackResistance: 1
+  navMeshHandler: {fileID: 0}
   attackPrefab:
   - {fileID: 7397309870969623419, guid: 0efb65282a0635b4297944a17a94a610, type: 3}
-  deathEffect: {fileID: 5764864091735545940, guid: aaec1febfb4f9d049a7a95f33b6fcbd3, type: 3}
 --- !u!195 &2929693825325491678
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -167,6 +159,40 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
+--- !u!114 &4257650072081865744
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4075929206208946003}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4689335e2d5457f48857a164dfe9fce0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  targetInfo:
+  - targetTag: Player
+    targetPriority: 1
+  - targetTag: Castle
+    targetPriority: 2
+  onTragetUpdate:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 2489351175511700337}
+        m_TargetAssemblyTypeName: EnemyBase, Assembly-CSharp
+        m_MethodName: ChangeTarget
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  target: {x: 0, y: 0}
+  agent: {fileID: 0}
 --- !u!1 &6731152549799834379
 GameObject:
   m_ObjectHideFlags: 0

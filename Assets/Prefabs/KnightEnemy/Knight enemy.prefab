@@ -100,8 +100,9 @@ GameObject:
   - component: {fileID: 74361052714030928}
   - component: {fileID: 7479258132409449563}
   - component: {fileID: 1896178208348174071}
+  - component: {fileID: 6579302195971909215}
   m_Layer: 6
-  m_Name: Enemy
+  m_Name: Knight enemy
   m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -136,20 +137,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a633e14efaa2c7e4db22bf3f78363135, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  rayCastCollide:
-    serializedVersion: 2
-    m_Bits: 384
+  enemySO: {fileID: 11400000, guid: aecc7f6feac2d5a4d9c925334e5ba8f6, type: 2}
   healthBar: {fileID: 3030883949352039403}
-  maxHealth: 60
-  rangeAttack: 0
-  damage: 5
-  attackRange: 1.5
-  attackOffset: 0
-  attackCooldown: 1
-  knockbackResistance: 0.5
+  navMeshHandler: {fileID: 6579302195971909215}
   attackPrefab:
   - {fileID: 1826483107877130399, guid: 0bea8fac0e0803a4aa7c107d03d3ec9e, type: 3}
-  deathEffect: {fileID: 5764864091735545940, guid: aaec1febfb4f9d049a7a95f33b6fcbd3, type: 3}
 --- !u!195 &74361052714030928
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -254,6 +246,40 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
+--- !u!114 &6579302195971909215
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4898852075688191091}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4689335e2d5457f48857a164dfe9fce0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  targetInfo:
+  - targetTag: Castle
+    targetPriority: 1
+  - targetTag: Player
+    targetPriority: 2
+  onTragetUpdate:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 681127483295503223}
+        m_TargetAssemblyTypeName: EnemyBase, Assembly-CSharp
+        m_MethodName: ChangeTarget
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  target: {x: 0, y: 0}
+  agent: {fileID: 0}
 --- !u!1001 &7129394493531687623
 PrefabInstance:
   m_ObjectHideFlags: 0
