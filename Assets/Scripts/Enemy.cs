@@ -23,7 +23,6 @@ public class Enemy : MonoBehaviour
 
     // Attack Settings
     [Header("Attack Settings")]
-    public bool rangeAttack = false;
     public int damage = 5;
     public float attackRange = 3f;
     public float attackOffset = 1.2f;
@@ -119,15 +118,16 @@ public class Enemy : MonoBehaviour
         // Calculate rotation angle so that the attack faces the target
         float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
 
-        // Cast a ray in the direction of the target
-        if (!rangeAttack)
+        if (!attack.projectileAttack)
         {
+            // Perform a melee attack instantiation
             RaycastHit2D hit = Physics2D.Raycast(transform.position, normalizedDirection, attackRange, rayCastCollide);
             Vector3 spawnPosition = hit.point;
             Instantiate(attackPrefab, spawnPosition, Quaternion.Euler(0, 0, angle));
         }
         else
         {
+            // Perform a projectile attack instantiation
             Instantiate(attackPrefab, transform.position + offset, Quaternion.Euler(0, 0, angle));
         }
     }
