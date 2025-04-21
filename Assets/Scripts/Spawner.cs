@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using UnityEngine;
 
@@ -9,7 +10,6 @@ public class EnemySpawnInfo
     public float spawnChance = 1f;
 }
 
-
 public class Spawner : MonoBehaviour
 {
     public Transform spawnAreaCenter;  // Center of the rectangle spawn area
@@ -18,51 +18,81 @@ public class Spawner : MonoBehaviour
     public EnemySpawnInfo[] enemySpawnInfos;
     public float spawnDelay = 2f;        // Time delay between spawns
     public int enemiesToSpawn = 10;
+    public float batchSpawnChance = 0f; // Chance for batch spawning
+    public Vector2 batchRange = Vector2.zero;
 
     [HideInInspector] public int spawnCount = 0;
     [HideInInspector] public bool allEnemiesSpawned = false;
 
+    public void ClearEnemies()
+    {
+        enemySpawnInfos = new EnemySpawnInfo[0];
+    }
+
+    public void AddEnemy(GameObject enemyPrefab, float spawnChance)
+    {
+        // Add new enemy with its spawn chance
+        EnemySpawnInfo newEnemyInfo = new EnemySpawnInfo
+        {
+            enemyPrefab = enemyPrefab,
+            spawnChance = spawnChance
+        };
+
+        Array.Resize(ref enemySpawnInfos, enemySpawnInfos.Length + 1);
+        enemySpawnInfos[enemySpawnInfos.Length - 1] = newEnemyInfo;
+    }
 
 
     public IEnumerator SpawnEnemies()
     {
-        
         while (true)
         {
             allEnemiesSpawned = false;
             yield return new WaitForSeconds(spawnDelay);
 
             // Choose a random edge of the rectangle (0 = top, 1 = bottom, 2 = left, 3 = right)
-            int side = Random.Range(0, 4);
+            int side = UnityEngine.Random.Range(0, 4);
             float spawnX = 0f;
             float spawnY = 0f;
 
             switch (side)
             {
                 case 0: // Top
-                    spawnX = Random.Range(-halfWidth, halfWidth);
+                    spawnX = UnityEngine.Random.Range(-halfWidth, halfWidth);
                     spawnY = halfHeight;
                     break;
                 case 1: // Bottom
-                    spawnX = Random.Range(-halfWidth, halfWidth);
+                    spawnX = UnityEngine.Random.Range(-halfWidth, halfWidth);
                     spawnY = -halfHeight;
                     break;
                 case 2: // Left
                     spawnX = -halfWidth;
-                    spawnY = Random.Range(-halfHeight, halfHeight);
+                    spawnY = UnityEngine.Random.Range(-halfHeight, halfHeight);
                     break;
                 case 3: // Right
                     spawnX = halfWidth;
-                    spawnY = Random.Range(-halfHeight, halfHeight);
+                    spawnY = UnityEngine.Random.Range(-halfHeight, halfHeight);
                     break;
             }
 
             Vector3 spawnPosition = spawnAreaCenter.position + new Vector3(spawnX, spawnY, 0);
 
-            // Pick enemy prefab based on weighted spawn chance.
-            GameObject enemyPrefab = GetRandomEnemyPrefab();
-            Instantiate(enemyPrefab, spawnPosition, Quaternion.identity);
-            ++spawnCount;
+            // Handle batch spawning
+            if (batchSpawnChance > 0f && UnityEngine.Random.value <= batchSpawnChance)
+            {
+                int batchCount = UnityEngine.Random.Range((int)batchRange.x, (int)batchRange.y + 1);
+                for (int i = 0; i < batchCount; i++)
+                {
+                    SpawnEnemy(spawnPosition);
+                }
+            }
+            else
+            {
+                // Spawn a single enemy
+                SpawnEnemy(spawnPosition);
+            }
+
+            spawnCount++;
 
             if (spawnCount >= enemiesToSpawn)
             {
@@ -74,20 +104,25 @@ public class Spawner : MonoBehaviour
         }
     }
 
-    // This method uses weighted random selection to return an enemy prefab.
+    private void SpawnEnemy(Vector3 position)
+    {
+        if (enemySpawnInfos.Length > 0)
+        {
+            GameObject enemyPrefab = GetRandomEnemyPrefab();
+            Instantiate(enemyPrefab, position, Quaternion.identity);
+        }
+    }
+
     private GameObject GetRandomEnemyPrefab()
     {
-        // First, compute the total weight from all spawn chances.
         float totalChance = 0f;
         foreach (EnemySpawnInfo info in enemySpawnInfos)
         {
             totalChance += info.spawnChance;
         }
 
-        // Get a random value between 0 and total weight.
-        float randomValue = Random.Range(0f, totalChance);
+        float randomValue = UnityEngine.Random.Range(0f, totalChance);
 
-        // Iterate through the enemy list, subtracting chance until threshold is reached.
         foreach (EnemySpawnInfo info in enemySpawnInfos)
         {
             if (randomValue < info.spawnChance)
@@ -97,8 +132,7 @@ public class Spawner : MonoBehaviour
             randomValue -= info.spawnChance;
         }
 
-        // Fallback - in case something goes wrong, return the first enemy.
-        return enemySpawnInfos[0].enemyPrefab;
+        return enemySpawnInfos[0].enemyPrefab; // Fallback
     }
 
     private void OnDrawGizmosSelected()

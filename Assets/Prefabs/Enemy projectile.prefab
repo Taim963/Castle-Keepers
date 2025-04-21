@@ -167,7 +167,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   projectileAttack: 1
   damage: 5
-  lifeTime: 0.5
+  lifeTime: 1
   speed: 20
   pierce: 0
   collisionMask:
@@ -175,5 +175,5 @@ MonoBehaviour:
     m_Bits: 384
   hitEffect: {fileID: 5764864091735545940, guid: aaec1febfb4f9d049a7a95f33b6fcbd3, type: 3}
   damageSum: 0
-  baseEnemyDamage: 0
+  baseEnemyDamage: 5
   hasHit: 0

@@ -17,12 +17,11 @@ public class NavMeshHandler : MonoBehaviour
     //instead of the code above, create a dictionary array with a string for and a priority for a key (lower number = higher priority).
     public UnityEvent onTragetUpdate;
     [HideInInspector] public Vector2 target; // The enemy transform from which we got the closest point
-    [HideInInspector] public NavMeshAgent agent;
+    public NavMeshAgent agent;
 
     protected virtual void Start()
     {
         // Initialize NavMeshAgent
-        agent = GetComponent<NavMeshAgent>();
         agent.updateRotation = false;
         agent.updateUpAxis = false;
     }
@@ -44,11 +43,7 @@ public class NavMeshHandler : MonoBehaviour
     {
         while (true)
         {
-            // Set the destination every frame
-            if (target == null)
-            {
-                GetTarget();
-            }
+            GetTarget();
             agent.SetDestination(target);
             yield return null;
         }
@@ -65,6 +60,7 @@ public class NavMeshHandler : MonoBehaviour
         GameObject chosenTarget = null;
         int bestPriority = int.MaxValue;
         float bestDistance = Mathf.Infinity;
+        Vector2 closestPoint = Vector2.zero;
 
         // Loop through each TargetInfo entry
         foreach (TargetInfo info in targetInfo)
@@ -84,22 +80,34 @@ public class NavMeshHandler : MonoBehaviour
             // Evaluate each candidate
             foreach (GameObject potential in potentialTargets)
             {
-                float distance = Vector2.Distance(transform.position, potential.transform.position);
+                Collider2D potentialCollider = potential.GetComponent<Collider2D>();
+
+                if (potentialCollider == null)
+                {
+                    Debug.LogWarning($"GameObject {potential.name} does not have a Collider2D.");
+                    continue;
+                }
+
+                // Find the closest point on the collider to this object (e.g., the enemy)
+                Vector2 pointOnCollider = potentialCollider.ClosestPoint(transform.position);
+                float distance = Vector2.Distance(transform.position, pointOnCollider);
 
                 // Use targetPriority as the primary selector (smaller value is better)
-                // and distance as a tiebreaker.
-                if (info.targetPriority < bestPriority || (info.targetPriority == bestPriority && distance < bestDistance))
+                // and distance as a tiebreaker
+                if (info.targetPriority < bestPriority ||
+                    (info.targetPriority == bestPriority && distance < bestDistance))
                 {
                     bestPriority = info.targetPriority;
                     bestDistance = distance;
                     chosenTarget = potential;
+                    closestPoint = pointOnCollider;
                 }
             }
         }
 
         if (chosenTarget != null)
         {
-            target = chosenTarget.transform.position;
+            target = closestPoint; // Store the closest point on the chosen target's collider
             onTragetUpdate.Invoke();
         }
         else
@@ -107,5 +115,4 @@ public class NavMeshHandler : MonoBehaviour
             Debug.LogWarning("No valid target found based on the TargetInfo entries.");
         }
     }
-
 }

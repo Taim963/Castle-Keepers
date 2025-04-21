@@ -6,6 +6,7 @@ public class Tower : MonoBehaviour
 {
     // === Public Configuration ===
     [Header("Tower Settings")]
+    public int damage = 5;
     public float cooldown = 1f;
     public GameObject attackPrefab;
 
@@ -27,6 +28,8 @@ public class Tower : MonoBehaviour
     private void Start()
     {
         // Any initialization logic you require
+        Projectile projectile = attackPrefab.GetComponent<Projectile>();
+        projectile.baseWeaponDamage = damage;
     }
 
     private void Update()

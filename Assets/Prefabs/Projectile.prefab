@@ -144,9 +144,12 @@ MonoBehaviour:
   KnockbackForce: 7
   lifetime: 1
   hitEffectPrefab: {fileID: 5764864091735545940, guid: aaec1febfb4f9d049a7a95f33b6fcbd3, type: 3}
-  collisionMask:
+  collideMask:
     serializedVersion: 2
-    m_Bits: 320
+    m_Bits: 4352
+  hurtMask:
+    serializedVersion: 2
+    m_Bits: 64
   baseWeaponDamage: 5
   damageSum: 0
 --- !u!50 &5049618215075980355

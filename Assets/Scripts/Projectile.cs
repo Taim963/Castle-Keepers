@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class Projectile : MonoBehaviour
 {
@@ -9,14 +10,19 @@ public class Projectile : MonoBehaviour
     public float KnockbackForce = 1;
     public float lifetime = 2f;
     public GameObject hitEffectPrefab;
-    public LayerMask collisionMask;
+    public LayerMask collideMask;
+    public LayerMask hurtMask;
     private HashSet<GameObject> hitEnemies = new HashSet<GameObject>(); // Track enemies, not colliders
 
     [HideInInspector] public int baseWeaponDamage;
     [HideInInspector] public int damageSum;
 
+    private GameManager gameManager; // Reference to the GameManager
+
     private void Start()
     {
+        gameManager = GameManager.instance; // Get the GameManager instance
+
         damageSum = baseWeaponDamage + damage;
         Invoke("ProjectileDeath", lifetime);
     }
@@ -33,24 +39,33 @@ public class Projectile : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (IsColliderInLayerMask(other, collisionMask) && !hitEnemies.Contains(other.gameObject))
+        if (IsColliderInLayerMask(other, hurtMask))
         {
-            if (pierce > 0)
-            {
-                pierce--;
-                hitEnemies.Add(other.gameObject);
-                CreatePierceEffect();
-            }
-            else
-            {
-                ProjectileDeath();
-            }
+            HandleEnemyCollision(other);
         }
 
-        if (other.CompareTag("Wall") || other.CompareTag("Castle"))
+        if (IsColliderInLayerMask(other, collideMask))
         {
             ProjectileDeath();
         }
+    }
+
+    private void HandleEnemyCollision(Collider2D other)
+    {
+        if (hitEnemies.Contains(other.gameObject)) return;
+        
+        if (pierce > 0)
+        {
+            pierce--;
+            hitEnemies.Add(other.gameObject);
+            CreatePierceEffect();
+        }
+        else
+        {
+            ProjectileDeath();
+        }
+
+        gameManager.onProjectileHit.Invoke(this, other.gameObject); // Notify GameManager about the hit
     }
 
     private void ProjectileDeath()

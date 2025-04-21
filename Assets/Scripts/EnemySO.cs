@@ -8,7 +8,6 @@ public class EnemySO : ScriptableObject
 {
     #region // Navigation
     [Header("Navigation")]
-    [HideInInspector] public Vector2 currentTarget;
     public LayerMask rayCastCollide; // LayerMask for raycast collision
     #endregion
 
@@ -16,7 +15,6 @@ public class EnemySO : ScriptableObject
     [Header("Health Settings")]
     public int maxHealth = 30;
     public int goldValue = 2;
-    [HideInInspector] public int health;
     private HashSet<GameObject> hitAttacks = new HashSet<GameObject>();
     #endregion
 

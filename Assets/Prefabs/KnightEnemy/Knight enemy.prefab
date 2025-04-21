@@ -138,10 +138,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   enemySO: {fileID: 11400000, guid: aecc7f6feac2d5a4d9c925334e5ba8f6, type: 2}
-  healthBar: {fileID: 3030883949352039403}
   navMeshHandler: {fileID: 6579302195971909215}
   attackPrefab:
   - {fileID: 1826483107877130399, guid: 0bea8fac0e0803a4aa7c107d03d3ec9e, type: 3}
+  healthBar: {fileID: 3030883949352039403}
+  health: 0
 --- !u!195 &74361052714030928
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -279,7 +280,7 @@ MonoBehaviour:
           m_BoolArgument: 0
         m_CallState: 2
   target: {x: 0, y: 0}
-  agent: {fileID: 0}
+  agent: {fileID: 74361052714030928}
 --- !u!1001 &7129394493531687623
 PrefabInstance:
   m_ObjectHideFlags: 0

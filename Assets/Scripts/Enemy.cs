@@ -3,10 +3,39 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
-public class Enemy : EnemyBase
+public class Enemy : MonoBehaviour
 {
+    // SO
+    public EnemySO enemySO;
+
     // Flags
     private bool isFirstAttack = true;
+    private bool isAttacking = false;
+
+    // References
+    public NavMeshHandler navMeshHandler; // Reference to the NavMeshHandler script
+    public GameObject[] attackPrefab;      // Array of attack prefabs
+    public Health healthBar;
+    public int health;
+
+    // Instead of targetTransform we now use currentTarget as a simple position
+    private Vector2 currentTarget;
+
+    private void Start()
+    {
+        // Register enemy in GameManager
+        GameManager.instance.RegisterEnemy(gameObject);
+        GameManager.instance.onProjectileHit.AddListener(OnProjectileCollide);
+
+        // Initialize health
+        healthBar = GetComponentInChildren<Health>();
+        health = enemySO.maxHealth;
+        healthBar.SetMaxHealth(enemySO.maxHealth);
+
+        // Initialize NavMeshAgent chasing; update our current target position from the handler.
+        navMeshHandler.Chase();
+        currentTarget = navMeshHandler.target;
+    }
 
     private void Update()
     {
@@ -18,18 +47,16 @@ public class Enemy : EnemyBase
         }
     }
 
-    protected override void Start()
-    {
-        base.Start();
-    }
-
     private IEnumerator Attack(GameObject attackPrefab)
     {
-        while (Vector2.Distance(targetTransform.position, enemySO.currentTarget) <= enemySO.attackRange && CanSeeTarget())
+        // Use enemy's position instead of a target transform.
+        while (Vector2.Distance(transform.position, navMeshHandler.target) <= enemySO.attackRange && CanSeeTarget())
         {
             CancelInvoke("ResetFirstAttack");
+            navMeshHandler.StopChasing();
 
-            if (isFirstAttack) yield return new WaitForSeconds(1);
+            if (isFirstAttack)
+                yield return new WaitForSeconds(1);
             isFirstAttack = false;
 
             PerformAttack(attackPrefab);
@@ -51,10 +78,8 @@ public class Enemy : EnemyBase
         EnemyAttack attack = attackPrefab.GetComponent<EnemyAttack>();
         attack.baseEnemyDamage = enemySO.damage;
 
-
-
         // Calculate direction and offset for the attack spawn position
-        Vector2 direction = enemySO.currentTarget - (Vector2)transform.position;
+        Vector2 direction = navMeshHandler.target - (Vector2)transform.position;
         Vector2 normalizedDirection = direction.normalized;
         Vector3 offset = new Vector3(normalizedDirection.x, normalizedDirection.y, 0) * enemySO.attackOffset;
 
@@ -63,7 +88,7 @@ public class Enemy : EnemyBase
 
         if (!attack.projectileAttack)
         {
-            // Perform a melee attack instantiation
+            // Perform a melee attack instantiation with a raycast, using the enemy's position as the origin.
             RaycastHit2D hit = Physics2D.Raycast(transform.position, normalizedDirection, enemySO.attackRange, enemySO.rayCastCollide);
             Vector3 spawnPosition = hit.point;
             Instantiate(attackPrefab, spawnPosition, Quaternion.Euler(0, 0, angle));
@@ -75,8 +100,88 @@ public class Enemy : EnemyBase
         }
     }
 
-    protected override bool IsReadyToAttack()
+    private bool IsReadyToAttack()
     {
-        return base.IsReadyToAttack();
+        // Check if the enemy is close enough to the target, is not already attacking, and can see the target.
+        return Vector2.Distance(transform.position, navMeshHandler.target) <= enemySO.attackRange &&
+               !isAttacking &&
+               CanSeeTarget();
+    }
+
+    protected virtual bool CanSeeTarget()
+    {
+        // Use the enemy's own position for the raycast.
+        Vector2 startPos = transform.position;
+        Vector2 direction = (navMeshHandler.target - startPos).normalized;
+
+        // Perform the raycast
+        RaycastHit2D hit = Physics2D.Raycast(startPos, direction, enemySO.attackRange, enemySO.rayCastCollide);
+        Debug.DrawRay(startPos, direction * enemySO.attackRange, Color.red);
+
+        // If we hit a collider, find the closest point on its surface relative to the enemy position.
+        if (hit.collider != null)
+        {
+            Vector2 closestPoint = hit.collider.ClosestPoint(startPos); // Closest point on the collider
+            const float tolerance = 0.5f; // Distance tolerance for validation
+
+            // Verify if the closest point is close enough to the target position
+            if (Vector2.Distance(closestPoint, navMeshHandler.target) <= tolerance)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+
+    public virtual void ChangeTarget()
+    {
+        // Simply update our current target position from the nav mesh handler.
+        currentTarget = navMeshHandler.target;
+    }
+
+    public void OnProjectileCollide(Projectile projectile, GameObject thisEnemy)
+    {
+        if (thisEnemy != gameObject) return; 
+
+        TakeDamage(projectile.damageSum);
+        TakeKnockback(projectile.KnockbackForce, transform.position - projectile.transform.position);
+    }
+    
+    private void TakeDamage(int damage)
+    {
+        health -= damage;
+        healthBar.SetHealth(health);
+
+        if (health <= 0)
+        {
+            Die();
+        }
+    }
+
+    private void TakeKnockback(float knockbackForce, Vector2 direction)
+    {
+        // Normalize the direction vector and scale it by the knockback force
+        Vector2 knockbackDirection = direction.normalized * knockbackForce;
+
+        // Apply the calculated knockback to the NavMeshAgent's velocity
+        navMeshHandler.agent.velocity = knockbackDirection / enemySO.knockbackResistance;
+    }
+
+    private void Die()
+    {
+        GameManager.instance.OnEnemyDeath(gameObject, enemySO.goldValue);
+        GameObject deathEffectInstance = Instantiate(enemySO.deathEffect, transform.position, Quaternion.identity);
+        ChangeColorAndScale(deathEffectInstance);
+        Destroy(deathEffectInstance, 0.6f);
+        Destroy(gameObject);
+    }
+
+    private void ChangeColorAndScale(GameObject deathEffectInstance)
+    {
+        ParticleSystem.MainModule main = deathEffectInstance.GetComponent<ParticleSystem>().main;
+        SpriteRenderer spriteRenderer = GetComponentInChildren<SpriteRenderer>();
+        main.startColor = spriteRenderer.color;
+        deathEffectInstance.transform.localScale = Vector2.Scale(spriteRenderer.transform.localScale, deathEffectInstance.transform.localScale);
     }
 }

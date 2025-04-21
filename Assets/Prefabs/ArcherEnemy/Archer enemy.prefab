@@ -51,10 +51,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   enemySO: {fileID: 11400000, guid: 9a9f6dfe0593a6c46a6258d78e144b4a, type: 2}
-  healthBar: {fileID: 217684238292470284}
-  navMeshHandler: {fileID: 0}
+  navMeshHandler: {fileID: 4257650072081865744}
   attackPrefab:
   - {fileID: 7397309870969623419, guid: 0efb65282a0635b4297944a17a94a610, type: 3}
+  healthBar: {fileID: 217684238292470284}
+  health: 0
 --- !u!195 &2929693825325491678
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -69,7 +70,7 @@ NavMeshAgent:
   m_Acceleration: 20
   avoidancePriority: 50
   m_AngularSpeed: 360
-  m_StoppingDistance: 2
+  m_StoppingDistance: 10
   m_AutoTraverseOffMeshLink: 1
   m_AutoBraking: 1
   m_AutoRepath: 1
@@ -192,7 +193,7 @@ MonoBehaviour:
           m_BoolArgument: 0
         m_CallState: 2
   target: {x: 0, y: 0}
-  agent: {fileID: 0}
+  agent: {fileID: 2929693825325491678}
 --- !u!1 &6731152549799834379
 GameObject:
   m_ObjectHideFlags: 0
