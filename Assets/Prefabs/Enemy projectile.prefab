@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 6869951067252818370}
   - component: {fileID: -2016537790126927359}
   - component: {fileID: 5193813654687786055}
-  - component: {fileID: 1173632422220285234}
+  - component: {fileID: -8513695449839535090}
   m_Layer: 10
   m_Name: Enemy projectile
   m_TagString: Hurt2
@@ -153,7 +153,7 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
---- !u!114 &1173632422220285234
+--- !u!114 &-8513695449839535090
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -162,18 +162,20 @@ MonoBehaviour:
   m_GameObject: {fileID: 7397309870969623419}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: eb366901a5885854ba442e27c41147fa, type: 3}
+  m_Script: {fileID: 11500000, guid: f90c8394eb689a44794cd43ae33703a9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  projectileAttack: 1
+  speed: 10
   damage: 5
-  lifeTime: 1
-  speed: 20
   pierce: 0
-  collisionMask:
+  KnockbackForce: 1
+  lifetime: 2
+  hitEffectPrefab: {fileID: 5764864091735545940, guid: aaec1febfb4f9d049a7a95f33b6fcbd3, type: 3}
+  collideMask:
     serializedVersion: 2
-    m_Bits: 384
-  hitEffect: {fileID: 5764864091735545940, guid: aaec1febfb4f9d049a7a95f33b6fcbd3, type: 3}
+    m_Bits: 256
+  hurtMask:
+    serializedVersion: 2
+    m_Bits: 14464
+  baseWeaponDamage: 0
   damageSum: 0
-  baseEnemyDamage: 5
-  hasHit: 0

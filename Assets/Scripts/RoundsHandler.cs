@@ -11,8 +11,8 @@ public class RoundsInfo
     public Vector2 spawnDelayRange; // Min and max delay stored as x (min) and y (max)
     public int timesToSpawn;        // How many times to do the spawning
     public bool batchSpawn;
-    [ShowIf("batchSpawn")] public float batchSpawnChance; // Chance for enemies to spawn in a batch each spawn loop
-    [ShowIf("batchSpawn")] public Vector2 batchRange;     // Min and max amount of enemies for each batch spawn
+    public float batchSpawnChance; // Chance for enemies to spawn in a batch each spawn loop
+    public Vector2 batchRange;     // Min and max amount of enemies for each batch spawn
 }
 
 

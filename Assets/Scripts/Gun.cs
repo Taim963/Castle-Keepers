@@ -2,7 +2,7 @@ using System.Collections;
 using UnityEngine;
 using NaughtyAttributes;
 
-public class Weapon : MonoBehaviour
+public class Gun : MonoBehaviour
 {
     public GameObject projectilePrefab;
     public bool hitScanWeapon = false;

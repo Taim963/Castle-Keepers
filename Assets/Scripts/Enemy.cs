@@ -11,18 +11,23 @@ public class Enemy : MonoBehaviour
     // Flags
     private bool isFirstAttack = true;
     private bool isAttacking = false;
+    private Projectile projectile;
 
     // References
     public NavMeshHandler navMeshHandler; // Reference to the NavMeshHandler script
-    public GameObject[] attackPrefab;      // Array of attack prefabs
+    public GameObject attackPrefab;      // Array of attack prefabs
     public Health healthBar;
     public int health;
 
     // Instead of targetTransform we now use currentTarget as a simple position
     private Vector2 currentTarget;
+    public List<GameObject> attackers; // List of troops attacking the enemy 
 
     private void Start()
     {
+        projectile = attackPrefab.GetComponent<Projectile>();
+        projectile.baseWeaponDamage = enemySO.damage;
+
         // Register enemy in GameManager
         GameManager.instance.RegisterEnemy(gameObject);
         GameManager.instance.onProjectileHit.AddListener(OnProjectileCollide);
@@ -43,7 +48,7 @@ public class Enemy : MonoBehaviour
         {
             navMeshHandler.StopChasing();
             isAttacking = true;
-            StartCoroutine(Attack(attackPrefab[0]));
+            StartCoroutine(Attack(attackPrefab));
         }
     }
 
@@ -75,9 +80,6 @@ public class Enemy : MonoBehaviour
 
     private void PerformAttack(GameObject attackPrefab)
     {
-        EnemyAttack attack = attackPrefab.GetComponent<EnemyAttack>();
-        attack.baseEnemyDamage = enemySO.damage;
-
         // Calculate direction and offset for the attack spawn position
         Vector2 direction = navMeshHandler.target - (Vector2)transform.position;
         Vector2 normalizedDirection = direction.normalized;
@@ -86,7 +88,7 @@ public class Enemy : MonoBehaviour
         // Calculate rotation angle so that the attack faces the target
         float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
 
-        if (!attack.projectileAttack)
+        if (projectile.speed <= 0)
         {
             // Perform a melee attack instantiation with a raycast, using the enemy's position as the origin.
             RaycastHit2D hit = Physics2D.Raycast(transform.position, normalizedDirection, enemySO.attackRange, enemySO.rayCastCollide);
@@ -140,14 +142,14 @@ public class Enemy : MonoBehaviour
         currentTarget = navMeshHandler.target;
     }
 
-    public void OnProjectileCollide(Projectile projectile, GameObject thisEnemy)
+    public void OnProjectileCollide(int damage, float knockbackForce, GameObject thisEnemy, GameObject projectile)
     {
-        if (thisEnemy != gameObject) return; 
+        if (thisEnemy != gameObject) return;
 
-        TakeDamage(projectile.damageSum);
-        TakeKnockback(projectile.KnockbackForce, transform.position - projectile.transform.position);
+        TakeDamage(damage);
+        TakeKnockback(knockbackForce, transform.position - projectile.transform.position);
     }
-    
+
     private void TakeDamage(int damage)
     {
         health -= damage;

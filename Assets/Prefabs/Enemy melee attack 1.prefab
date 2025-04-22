@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &1826483107877130399
+--- !u!1 &1297763199830028873
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,25 +8,25 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 1243529510258996058}
-  - component: {fileID: 1796996076418731392}
-  - component: {fileID: 7963305585190791546}
-  - component: {fileID: 421958171270732473}
-  - component: {fileID: 5546947258165966263}
+  - component: {fileID: 8584986188175801339}
+  - component: {fileID: 8464618704992246273}
+  - component: {fileID: 3891161564340133451}
+  - component: {fileID: 2415248708925835588}
+  - component: {fileID: -8266539411607022737}
   m_Layer: 0
-  m_Name: Enemy melee attack
+  m_Name: Enemy melee attack 1
   m_TagString: Hurt1
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &1243529510258996058
+--- !u!4 &8584986188175801339
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1826483107877130399}
+  m_GameObject: {fileID: 1297763199830028873}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
@@ -35,13 +35,13 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!212 &1796996076418731392
+--- !u!212 &8464618704992246273
 SpriteRenderer:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1826483107877130399}
+  m_GameObject: {fileID: 1297763199830028873}
   m_Enabled: 1
   m_CastShadows: 0
   m_ReceiveShadows: 0
@@ -90,14 +90,14 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!50 &7963305585190791546
+--- !u!50 &3891161564340133451
 Rigidbody2D:
   serializedVersion: 5
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1826483107877130399}
+  m_GameObject: {fileID: 1297763199830028873}
   m_BodyType: 0
   m_Simulated: 1
   m_UseFullKinematicContacts: 0
@@ -117,13 +117,13 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
---- !u!70 &421958171270732473
+--- !u!70 &2415248708925835588
 CapsuleCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1826483107877130399}
+  m_GameObject: {fileID: 1297763199830028873}
   m_Enabled: 1
   serializedVersion: 3
   m_Density: 1
@@ -154,27 +154,29 @@ CapsuleCollider2D:
   m_Offset: {x: -0.00000016945174, y: 0.0026584794}
   m_Size: {x: 2.2968366, y: 1.0797603}
   m_Direction: 0
---- !u!114 &5546947258165966263
+--- !u!114 &-8266539411607022737
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1826483107877130399}
+  m_GameObject: {fileID: 1297763199830028873}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: eb366901a5885854ba442e27c41147fa, type: 3}
+  m_Script: {fileID: 11500000, guid: f90c8394eb689a44794cd43ae33703a9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  projectileAttack: 0
+  speed: 0
   damage: 5
-  lifeTime: 0.5
-  speed: 15
-  pierce: 3
-  collisionMask:
+  pierce: 100
+  KnockbackForce: 1
+  lifetime: 1
+  hitEffectPrefab: {fileID: 5764864091735545940, guid: aaec1febfb4f9d049a7a95f33b6fcbd3, type: 3}
+  collideMask:
     serializedVersion: 2
-    m_Bits: 128
-  hitEffect: {fileID: 5764864091735545940, guid: aaec1febfb4f9d049a7a95f33b6fcbd3, type: 3}
+    m_Bits: 0
+  hurtMask:
+    serializedVersion: 2
+    m_Bits: 14464
+  baseWeaponDamage: 0
   damageSum: 0
-  baseEnemyDamage: 0
-  hasHit: 0

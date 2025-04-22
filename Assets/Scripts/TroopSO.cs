@@ -1,10 +1,9 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
-[CreateAssetMenu(fileName = "EnemySO", menuName = "Scriptable Objects/EnemySO")]
-public class EnemySO : ScriptableObject
+[CreateAssetMenu(fileName = "TroopSO", menuName = "Scriptable Objects/TroopSO")]
+public class TroopSO : ScriptableObject
 {
     #region // Navigation
     [Header("Navigation")]
@@ -23,7 +22,7 @@ public class EnemySO : ScriptableObject
     public float attackRange = 3f;
     public float attackOffset = 1.2f;
     public float attackCooldown = 1f;
-    public float knockbackResistance = 0.5f; // 0 = no resistance (full knockback), 1 = full resistance (no knockback)
+    public float knockbackResistance = 0.7f; // 0 = no resistance (full knockback), 1 = full resistance (no knockback)
     #endregion
 
     #region // Effects

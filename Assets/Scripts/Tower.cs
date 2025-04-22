@@ -11,7 +11,8 @@ public class Tower : MonoBehaviour
     public GameObject attackPrefab;
 
     [Header("Collision Settings")]
-    public Collider2D towerCollider; // Assigned in Inspector
+    public Collider2D towerSmallCollider; // Assigned in Inspector
+    public Collider2D towerRangeCollider; // Assigned in Inspector
 
     [HideInInspector]
     public bool fullyInside = false;
@@ -110,8 +111,8 @@ public class Tower : MonoBehaviour
         while (true)
         {
             // First, ensure that the full bounds of the tower are inside the wall.
-            if (wallCollider.bounds.Contains(towerCollider.bounds.min) &&
-                wallCollider.bounds.Contains(towerCollider.bounds.max))
+            if (wallCollider.bounds.Contains(towerSmallCollider.bounds.min) &&
+                wallCollider.bounds.Contains(towerSmallCollider.bounds.max))
             {
                 // Additionally, verify that there isn’t an overlapping tower nearby.
                 if (IsPositionValid())
@@ -166,13 +167,13 @@ public class Tower : MonoBehaviour
     private bool IsPositionValid()
     {
         // Use OverlapCircleAll to check for nearby towers.
-        Collider2D[] colliders = Physics2D.OverlapCircleAll(towerCollider.bounds.center, 0.3f);
+        Collider2D[] colliders = Physics2D.OverlapCircleAll(towerSmallCollider.bounds.center, 0.3f);
 
         foreach (Collider2D collider in colliders)
         {
             if (collider.CompareTag("Tower") && collider.gameObject != gameObject)
             {
-                float distance = Vector2.Distance(collider.bounds.center, towerCollider.bounds.center);
+                float distance = Vector2.Distance(collider.bounds.center, towerSmallCollider.bounds.center);
                 // Ensure towers maintain a minimum spacing.
                 if (distance < 1f)
                 {
@@ -181,5 +182,12 @@ public class Tower : MonoBehaviour
             }
         }
         return true;
+    }
+
+    private void OnDrawGizmos()
+    {
+        // Draw the range of the tower for debugging purposes.
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(towerRangeCollider.bounds.center, towerRangeCollider.bounds.extents.x);
     }
 }

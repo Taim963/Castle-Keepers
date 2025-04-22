@@ -52,10 +52,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   enemySO: {fileID: 11400000, guid: 9a9f6dfe0593a6c46a6258d78e144b4a, type: 2}
   navMeshHandler: {fileID: 4257650072081865744}
-  attackPrefab:
-  - {fileID: 7397309870969623419, guid: 0efb65282a0635b4297944a17a94a610, type: 3}
+  attackPrefab: {fileID: 7397309870969623419, guid: 0efb65282a0635b4297944a17a94a610, type: 3}
   healthBar: {fileID: 217684238292470284}
   health: 0
+  attackers: []
 --- !u!195 &2929693825325491678
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -172,11 +172,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4689335e2d5457f48857a164dfe9fce0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  targetInfo:
+  targetList:
   - targetTag: Player
-    targetPriority: 1
+    priority: 1
   - targetTag: Castle
-    targetPriority: 2
+    priority: 2
   onTragetUpdate:
     m_PersistentCalls:
       m_Calls:
@@ -194,6 +194,7 @@ MonoBehaviour:
         m_CallState: 2
   target: {x: 0, y: 0}
   agent: {fileID: 2929693825325491678}
+  chosenTarget: {fileID: 0}
 --- !u!1 &6731152549799834379
 GameObject:
   m_ObjectHideFlags: 0

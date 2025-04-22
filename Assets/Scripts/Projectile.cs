@@ -65,7 +65,7 @@ public class Projectile : MonoBehaviour
             ProjectileDeath();
         }
 
-        gameManager.onProjectileHit.Invoke(this, other.gameObject); // Notify GameManager about the hit
+        gameManager.onProjectileHit.Invoke(damageSum, KnockbackForce, other.gameObject, gameObject); // Notify GameManager about the hit
     }
 
     private void ProjectileDeath()

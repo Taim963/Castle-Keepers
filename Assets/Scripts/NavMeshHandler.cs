@@ -1,29 +1,41 @@
 using NaughtyAttributes;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.Events;
 
 [System.Serializable]
-public class TargetInfo
+public class TargetEntry
 {
     public string targetTag;
-    public int targetPriority; // Priority for selecting the target, smaller value = higher priority
+    public int priority; // Lower number = higher priority
 }
 
 public class NavMeshHandler : MonoBehaviour
 {
-    public TargetInfo[] targetInfo; // Reference to the TargetInfo object
-    //instead of the code above, create a dictionary array with a string for and a priority for a key (lower number = higher priority).
+    [SerializeField] private List<TargetEntry> targetList = new List<TargetEntry>(); // Serialized for Unity Inspector
+    public Dictionary<string, int> targetInfo = new Dictionary<string, int>(); // Runtime Dictionary
     public UnityEvent onTragetUpdate;
-    [HideInInspector] public Vector2 target; // The enemy transform from which we got the closest point
+
+    [HideInInspector] public Vector2 target;
     public NavMeshAgent agent;
+    public GameObject chosenTarget;
 
     protected virtual void Start()
     {
         // Initialize NavMeshAgent
         agent.updateRotation = false;
         agent.updateUpAxis = false;
+
+        // Convert serialized list to dictionary at runtime
+        foreach (var entry in targetList)
+        {
+            if (!targetInfo.ContainsKey(entry.targetTag))
+            {
+                targetInfo[entry.targetTag] = entry.priority;
+            }
+        }
     }
 
     public void Chase()
@@ -51,31 +63,24 @@ public class NavMeshHandler : MonoBehaviour
 
     private void GetTarget()
     {
-        if (targetInfo == null || targetInfo.Length == 0)
+        if (targetInfo.Count == 0)
         {
             Debug.LogWarning("No TargetInfo provided.");
             return;
         }
 
-        GameObject chosenTarget = null;
+        chosenTarget = null;
         int bestPriority = int.MaxValue;
         float bestDistance = Mathf.Infinity;
         Vector2 closestPoint = Vector2.zero;
 
-        // Loop through each TargetInfo entry
-        foreach (TargetInfo info in targetInfo)
+        // Loop through each entry in the dictionary
+        foreach (KeyValuePair<string, int> entry in targetInfo)
         {
-            if (string.IsNullOrEmpty(info.targetTag))
-            {
-                Debug.LogWarning("A TargetInfo entry has an empty targetTag.");
-                continue;
-            }
-
-            // Retrieve all objects that match the tag from this TargetInfo
-            GameObject[] potentialTargets = GameObject.FindGameObjectsWithTag(info.targetTag);
+            GameObject[] potentialTargets = GameObject.FindGameObjectsWithTag(entry.Key);
 
             if (potentialTargets.Length == 0)
-                continue; // No objects found under this tag
+                continue;
 
             // Evaluate each candidate
             foreach (GameObject potential in potentialTargets)
@@ -88,16 +93,15 @@ public class NavMeshHandler : MonoBehaviour
                     continue;
                 }
 
-                // Find the closest point on the collider to this object (e.g., the enemy)
+                // Find the closest point on the collider to this object
                 Vector2 pointOnCollider = potentialCollider.ClosestPoint(transform.position);
                 float distance = Vector2.Distance(transform.position, pointOnCollider);
 
-                // Use targetPriority as the primary selector (smaller value is better)
-                // and distance as a tiebreaker
-                if (info.targetPriority < bestPriority ||
-                    (info.targetPriority == bestPriority && distance < bestDistance))
+                // Select target based on priority first, then distance
+                if (entry.Value < bestPriority ||
+                    (entry.Value == bestPriority && distance < bestDistance))
                 {
-                    bestPriority = info.targetPriority;
+                    bestPriority = entry.Value;
                     bestDistance = distance;
                     chosenTarget = potential;
                     closestPoint = pointOnCollider;
@@ -107,7 +111,7 @@ public class NavMeshHandler : MonoBehaviour
 
         if (chosenTarget != null)
         {
-            target = closestPoint; // Store the closest point on the chosen target's collider
+            target = closestPoint;
             onTragetUpdate.Invoke();
         }
         else

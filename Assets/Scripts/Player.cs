@@ -32,30 +32,6 @@ public class Player : MonoBehaviour
         rb.linearVelocity = movement * speed;
     }
 
-    private void OnTriggerEnter2D(Collider2D other)
-    {
-        if (other.CompareTag("Hurt2"))
-        {
-            EnemyAttack enemyAttack = other.GetComponent<EnemyAttack>();
-            
-            if (!enemyAttack.hasHit)
-            {
-                TakeDamage(enemyAttack.damageSum);
-                enemyAttack.hasHit = true;
-            }
-        }
-
-        if (other.CompareTag("Hurt1"))
-        {
-            EnemyAttack enemyAttack = other.GetComponent<EnemyAttack>();
-
-            if (!enemyAttack.hasHit)
-            {
-                TakeDamage(enemyAttack.damageSum);
-                enemyAttack.hasHit = true;
-            }
-        }
-    }
 
 
     public void TakeDamage(int damage)

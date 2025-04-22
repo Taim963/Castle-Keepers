@@ -117,7 +117,7 @@ Transform:
   m_GameObject: {fileID: 4898852075688191091}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -7, y: 0.39999998, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -139,10 +139,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   enemySO: {fileID: 11400000, guid: aecc7f6feac2d5a4d9c925334e5ba8f6, type: 2}
   navMeshHandler: {fileID: 6579302195971909215}
-  attackPrefab:
-  - {fileID: 1826483107877130399, guid: 0bea8fac0e0803a4aa7c107d03d3ec9e, type: 3}
+  attackPrefab: {fileID: 1297763199830028873, guid: 201590acaae2fa94e9f99a86e889aa78, type: 3}
   healthBar: {fileID: 3030883949352039403}
   health: 0
+  attackers: []
 --- !u!195 &74361052714030928
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -259,11 +259,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4689335e2d5457f48857a164dfe9fce0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  targetInfo:
+  targetList:
   - targetTag: Castle
-    targetPriority: 1
+    priority: 1
   - targetTag: Player
-    targetPriority: 2
+    priority: 2
   onTragetUpdate:
     m_PersistentCalls:
       m_Calls:
@@ -281,6 +281,7 @@ MonoBehaviour:
         m_CallState: 2
   target: {x: 0, y: 0}
   agent: {fileID: 74361052714030928}
+  chosenTarget: {fileID: 0}
 --- !u!1001 &7129394493531687623
 PrefabInstance:
   m_ObjectHideFlags: 0

@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 5449925479691756109}
   - component: {fileID: 4411010016521349209}
   - component: {fileID: 1457687577258628384}
+  - component: {fileID: 439958583938398040}
   m_Layer: 13
   m_Name: Knight troop
   m_TagString: Troop
@@ -69,20 +70,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 43d96b1079df41949b3817e65486eef6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  rayCastCollide:
-    serializedVersion: 2
-    m_Bits: 320
-  healthBar: {fileID: 6130512922934496310}
-  maxHealth: 30
-  rangeAttack: 0
-  damage: 5
-  attackRange: 2
-  attackOffset: 2
-  attackCooldown: 1
-  knockbackResistance: 0.5
+  troopSO: {fileID: 11400000, guid: 2fccce733399b4c4ba94a4bb7054c6f2, type: 2}
+  navMeshHandler: {fileID: 439958583938398040}
   attackPrefab:
   - {fileID: 8389670820800162102, guid: 3fac5a18d47d28b4bae2b799077d3a91, type: 3}
-  deathEffect: {fileID: 5764864091735545940, guid: aaec1febfb4f9d049a7a95f33b6fcbd3, type: 3}
+  healthBar: {fileID: 6130512922934496310}
+  health: 0
 --- !u!61 &1457687577258628384
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -129,6 +122,41 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 0.8828125, y: 1}
   m_EdgeRadius: 0
+--- !u!114 &439958583938398040
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2493531903411757241}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4689335e2d5457f48857a164dfe9fce0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  targetList:
+  - targetTag: Enemy
+    priority: 1
+  - targetTag: Path
+    priority: 2
+  onTragetUpdate:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 4411010016521349209}
+        m_TargetAssemblyTypeName: Troop, Assembly-CSharp
+        m_MethodName: ChangeTarget
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  target: {x: 0, y: 0}
+  agent: {fileID: 5449925479691756109}
+  chosenTarget: {fileID: 0}
 --- !u!1 &4607834231706115197
 GameObject:
   m_ObjectHideFlags: 0
