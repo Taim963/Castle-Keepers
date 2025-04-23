@@ -29,7 +29,7 @@ public class Tower : MonoBehaviour
     private void Start()
     {
         // Any initialization logic you require
-        Projectile projectile = attackPrefab.GetComponent<Projectile>();
+        Bullet projectile = attackPrefab.GetComponent<Bullet>();
         projectile.baseWeaponDamage = damage;
     }
 

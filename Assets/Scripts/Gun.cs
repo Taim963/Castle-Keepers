@@ -1,43 +1,94 @@
 using System.Collections;
 using UnityEngine;
 using NaughtyAttributes;
+using DG.Tweening.Core.Easing;
 
-public class Gun : MonoBehaviour
+public class Gun : Weapon
 {
-    public GameObject projectilePrefab;
-    public bool hitScanWeapon = false;
-    public bool burstWeapon = false;
-
-    public int damage = 5;
-    [ShowIf("burstWeapon")] public int bulletsPerBurst = 3;
-    [ShowIf("burstWeapon")] public float burstCooldown = 0.1f;
-    public float cooldown = 0.3f;
-    public float randomSpread = 0.1f; // Random spread for projectile direction
+    public GunSO gunSO; // Reference to the GunSO scriptable object
 
     private bool isFiring = false;
-    Quaternion spreadRotation;
+    private Quaternion spreadRotation;
+    private Bullet bullet;
 
-    private void Awake()
+    protected override void Awake()
     {
-        Projectile projectile = projectilePrefab.GetComponent<Projectile>();
-        projectile.baseWeaponDamage = damage;
-        float randomAngle = Random.Range(-randomSpread, randomSpread);
+        bullet = gunSO.projectilePrefab.GetComponent<Bullet>();
+        bullet.baseWeaponDamage = gunSO.damage;
+        bullet.baseWeaponKnockback = gunSO.knockbackForce;
+        float randomAngle = Random.Range(-gunSO.randomSpread, gunSO.randomSpread);
         spreadRotation = Quaternion.Euler(0, 0, randomAngle);
     }
 
-    public void TryFire()
+    public override void TryFire()
     {
         if (!isFiring) 
         {
-            if (!burstWeapon)
+            if (bullet.bulletSO.bulletType == BulletType.Projectile) HandleProjectileShots();
+
+            if (bullet.bulletSO.bulletType == BulletType.HitScan) HandleHitScanShots();
+        }
+    }
+
+    private IEnumerator HandleHitScanShots()
+    {
+        isFiring = true;
+        while (Input.GetMouseButton(1)) // Right mouse button for hitscan
+        {
+            Vector2 fireDirection = transform.right; // Forward direction of the gun
+            float range = bullet.bulletSO.range; // Use range from BulletSO
+
+            RaycastHit2D hit = Physics2D.Raycast(transform.position, fireDirection, range, bullet.bulletSO.hurtMask);
+            Vector2 hitPoint = hit.collider != null ? hit.point : (Vector2)transform.position + fireDirection * range;
+
+            StartCoroutine(DrawTracer(transform.position, hitPoint));
+
+            if (hit.collider != null)
             {
-                StartCoroutine(Fire());
+                bullet.AlertGameManagerOnHit(hit.collider);
             }
-            else
-            {
-                StartCoroutine(BurstFire());
-            }
-            
+
+            yield return new WaitForSeconds(gunSO.cooldown); // Same cooldown as projectile firing
+        }
+        isFiring = false;
+    }
+
+
+
+    // Tracer Coroutine (Fades away after a short time)
+    private IEnumerator DrawTracer(Vector2 start, Vector2 end)
+    {
+        GameObject tracer = new GameObject("Tracer");
+        LineRenderer lineRenderer = tracer.AddComponent<LineRenderer>();
+
+        lineRenderer.startWidth = 0.05f;
+        lineRenderer.endWidth = 0.05f;
+        lineRenderer.positionCount = 2;
+        lineRenderer.SetPosition(0, start);
+        lineRenderer.SetPosition(1, end);
+
+        // Optional: Add color gradient (looks cooler)
+        Gradient gradient = new Gradient();
+        gradient.SetKeys(
+            new GradientColorKey[] { new GradientColorKey(Color.yellow, 0f), new GradientColorKey(Color.red, 1f) },
+            new GradientAlphaKey[] { new GradientAlphaKey(1f, 0f), new GradientAlphaKey(0f, 1f) }
+        );
+        lineRenderer.colorGradient = gradient;
+
+        yield return new WaitForSeconds(0.1f); // Short visibility time before disappearing
+        Destroy(tracer);
+    }
+
+
+    private void HandleProjectileShots()
+    {
+        if (gunSO.weaponType == WeaponType.SingleShot)
+        {
+            StartCoroutine(Fire());
+        }
+        else
+        {
+            StartCoroutine(BurstFire());
         }
     }
 
@@ -49,16 +100,16 @@ public class Gun : MonoBehaviour
             Quaternion finalRotation = transform.rotation; // Default rotation
 
             // Only apply spread rotation if randomSpread is greater than 0
-            if (randomSpread > 0)
+            if (gunSO.randomSpread > 0)
             {
-                float randomAngle = Random.Range(-randomSpread, randomSpread);
+                float randomAngle = Random.Range(-gunSO.randomSpread, gunSO.randomSpread);
                 Quaternion spreadRotation = Quaternion.Euler(0, 0, randomAngle);
                 finalRotation *= spreadRotation;
             }
 
             // Instantiate projectile with calculated rotation
-            GameObject projectile = Instantiate(projectilePrefab, transform.position, finalRotation);
-            yield return new WaitForSeconds(cooldown);
+            GameObject projectile = Instantiate(gunSO.projectilePrefab, transform.position, finalRotation);
+            yield return new WaitForSeconds(gunSO.cooldown);
         }
         isFiring = false;
     }
@@ -68,25 +119,24 @@ public class Gun : MonoBehaviour
         isFiring = true;
         while (Input.GetMouseButton(0))
         {
-            for (int i = 0; i < bulletsPerBurst; i++)
+            for (int i = 0; i < gunSO.bulletsPerBurst; i++)
             {
                 Quaternion finalRotation = transform.rotation; // Default rotation
 
                 // Only apply spread rotation if randomSpread is greater than 0
-                if (randomSpread > 0)
+                if (gunSO.randomSpread > 0)
                 {
-                    float randomAngle = Random.Range(-randomSpread, randomSpread);
+                    float randomAngle = Random.Range(-gunSO.randomSpread, gunSO.randomSpread);
                     Quaternion spreadRotation = Quaternion.Euler(0, 0, randomAngle);
                     finalRotation *= spreadRotation;
                 }
 
                 // Instantiate projectile with calculated rotation
-                GameObject projectile = Instantiate(projectilePrefab, transform.position, finalRotation);
-                yield return new WaitForSeconds(burstCooldown);
+                GameObject projectile = Instantiate(gunSO.projectilePrefab, transform.position, finalRotation);
+                yield return new WaitForSeconds(gunSO.burstCooldown);
             }
-            yield return new WaitForSeconds(cooldown);
+            yield return new WaitForSeconds(gunSO.cooldown);
         }
         isFiring = false;
     }
-
 }

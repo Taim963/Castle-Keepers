@@ -17,11 +17,11 @@ public class Troop : MonoBehaviour
 
     // Instead of targetTransform we now use currentTarget as a simple position
     private Vector2 currentTarget;
-    private Projectile projectile;
+    private Bullet projectile;
 
     private void Start()
     {
-        projectile = attackPrefab.GetComponent<Projectile>();
+        projectile = attackPrefab.GetComponent<Bullet>();
         projectile.baseWeaponDamage = troopSO.damage;
 
         // Register enemy in GameManager
@@ -76,7 +76,7 @@ public class Troop : MonoBehaviour
         // Calculate rotation angle so that the attack faces the target
         float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
 
-        if (projectile.speed <= 0)
+        if (projectile.bulletSO.speed <= 0)
         {
             // Perform a melee attack instantiation with a raycast, using the enemy's position as the origin.
             RaycastHit2D hit = Physics2D.Raycast(transform.position, normalizedDirection, troopSO.attackRange, troopSO.rayCastCollide);

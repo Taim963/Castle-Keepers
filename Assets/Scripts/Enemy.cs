@@ -11,7 +11,7 @@ public class Enemy : MonoBehaviour
     // Flags
     private bool isFirstAttack = true;
     private bool isAttacking = false;
-    private Projectile projectile;
+    private Bullet projectile;
 
     // References
     public NavMeshHandler navMeshHandler; // Reference to the NavMeshHandler script
@@ -25,7 +25,7 @@ public class Enemy : MonoBehaviour
 
     private void Start()
     {
-        projectile = attackPrefab.GetComponent<Projectile>();
+        projectile = attackPrefab.GetComponent<Bullet>();
         projectile.baseWeaponDamage = enemySO.damage;
 
         // Register enemy in GameManager
@@ -88,7 +88,7 @@ public class Enemy : MonoBehaviour
         // Calculate rotation angle so that the attack faces the target
         float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
 
-        if (projectile.speed <= 0)
+        if (projectile.bulletSO.speed <= 0)
         {
             // Perform a melee attack instantiation with a raycast, using the enemy's position as the origin.
             RaycastHit2D hit = Physics2D.Raycast(transform.position, normalizedDirection, enemySO.attackRange, enemySO.rayCastCollide);

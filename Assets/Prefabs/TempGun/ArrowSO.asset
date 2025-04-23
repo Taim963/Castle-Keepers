@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 18abc849c01b3e04292072ab74b6188e, type: 3}
+  m_Name: ArrowSO
+  m_EditorClassIdentifier: 
+  bulletType: 0
+  pierce: 1
+  speed: 10
+  lifetime: 2
+  range: 10
+  hitEffectPrefab: {fileID: 5764864091735545940, guid: aaec1febfb4f9d049a7a95f33b6fcbd3, type: 3}
+  collideMask:
+    serializedVersion: 2
+    m_Bits: 4352
+  hurtMask:
+    serializedVersion: 2
+    m_Bits: 64

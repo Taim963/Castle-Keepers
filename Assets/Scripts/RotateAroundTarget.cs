@@ -2,16 +2,16 @@ using UnityEngine;
 
 public class RotateAroundTarget : MonoBehaviour
 {
-    public Transform target;
+    public Transform center;
     public bool followMouse = true;
-    public bool followMouseTarget = true;
+    public bool followMouseAroundTarget = true;
     public float horizontalRadius = 5f;
     public float verticalRadius = 3f;
 
     private void Update()
     {
         if (followMouse) FollowMouseRotation();
-        if (followMouseTarget) RotateAround();
+        if (followMouseAroundTarget) RotateAround();
     }
 
     private void FollowMouseRotation()
@@ -29,25 +29,25 @@ public class RotateAroundTarget : MonoBehaviour
 
     private void RotateAround()
     {
-        if (target != null)
+        if (center != null)
         {
             Vector3 mousePos = Input.mousePosition;
             mousePos.z = Camera.main.nearClipPlane;
             Vector3 worldPos = Camera.main.ScreenToWorldPoint(mousePos);
-            Vector3 direction = worldPos - target.position;
+            Vector3 direction = worldPos - center.position;
 
             float angle = Mathf.Atan2(direction.y, direction.x);
             float x = Mathf.Cos(angle) * horizontalRadius;
             float y = Mathf.Sin(angle) * verticalRadius;
 
             Vector3 offset = new Vector3(x, y, 0);
-            transform.position = target.position + offset;
+            transform.position = center.position + offset;
         }
     }
 
     private void OnDrawGizmosSelected()
     {
-        if (target != null)
+        if (center != null)
         {
             Gizmos.color = Color.green;
             const int segments = 50;
@@ -58,7 +58,7 @@ public class RotateAroundTarget : MonoBehaviour
                 float angle = i * 2 * Mathf.PI / segments;
                 float x = Mathf.Cos(angle) * horizontalRadius;
                 float y = Mathf.Sin(angle) * verticalRadius;
-                points[i] = target.position + new Vector3(x, y, 0);
+                points[i] = center.position + new Vector3(x, y, 0);
             }
 
             for (int i = 0; i < segments; i++)

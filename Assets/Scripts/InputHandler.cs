@@ -10,6 +10,14 @@ public class InputHandler : MonoBehaviour
     private bool lostGame = false;
 
 
+    private void Awake()
+    {
+        if (onLeftClick == null)
+        {
+            onLeftClick = new UnityEvent(); // Initialize to prevent null reference
+        }
+    }
+
     private void Update()
     {
         if (lostGame)

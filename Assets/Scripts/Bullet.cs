@@ -1,50 +1,53 @@
+using NaughtyAttributes;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.Events;
+using static Bullet;
 
-public class Projectile : MonoBehaviour
+public class Bullet : Hurt
 {
-    public float speed = 10f;
-    public int damage = 5;
-    public int pierce = 0;
-    public float KnockbackForce = 1;
-    public float lifetime = 2f;
-    public GameObject hitEffectPrefab;
-    public LayerMask collideMask;
-    public LayerMask hurtMask;
+    public BulletSO bulletSO; // Reference to the Bullet ScriptableObject
+
     private HashSet<GameObject> hitEnemies = new HashSet<GameObject>(); // Track enemies, not colliders
 
     [HideInInspector] public int baseWeaponDamage;
-    [HideInInspector] public int damageSum;
+    [HideInInspector] public float baseWeaponKnockback;
 
-    private GameManager gameManager; // Reference to the GameManager
+    [HideInInspector] public GameManager gameManager; // Reference to the GameManager
 
-    private void Start()
+    protected override void Start()
     {
         gameManager = GameManager.instance; // Get the GameManager instance
 
-        damageSum = baseWeaponDamage + damage;
-        Invoke("ProjectileDeath", lifetime);
+        if (bulletSO.bulletType == BulletType.Projectile)
+        {
+            Invoke("ProjectileDeath", bulletSO.lifetime);
+        } 
     }
 
-    private void Update()
+    protected override void Update()
     {
-        Launch();
+        if (bulletSO.bulletType == BulletType.Projectile)
+        { 
+            Launch();
+        }
+        
     }
 
     private void Launch()
     {
-        gameObject.transform.Translate(Vector2.right * speed * Time.deltaTime);
+        gameObject.transform.Translate(Vector2.right * bulletSO.speed * Time.deltaTime);
     }
 
-    private void OnTriggerEnter2D(Collider2D other)
+    protected override void OnTriggerEnter2D(Collider2D other)
     {
-        if (IsColliderInLayerMask(other, hurtMask))
+        if (IsColliderInLayerMask(other, bulletSO.hurtMask))
         {
             HandleEnemyCollision(other);
         }
 
-        if (IsColliderInLayerMask(other, collideMask))
+        if (IsColliderInLayerMask(other, bulletSO.collideMask))
         {
             ProjectileDeath();
         }
@@ -54,9 +57,9 @@ public class Projectile : MonoBehaviour
     {
         if (hitEnemies.Contains(other.gameObject)) return;
         
-        if (pierce > 0)
+        if (bulletSO.pierce > 0)
         {
-            pierce--;
+            bulletSO.pierce--;
             hitEnemies.Add(other.gameObject);
             CreatePierceEffect();
         }
@@ -65,12 +68,20 @@ public class Projectile : MonoBehaviour
             ProjectileDeath();
         }
 
-        gameManager.onProjectileHit.Invoke(damageSum, KnockbackForce, other.gameObject, gameObject); // Notify GameManager about the hit
+        AlertGameManagerOnHit(other);
+    }
+
+    public void AlertGameManagerOnHit(Collider2D other)
+    {
+        if (IsColliderInLayerMask(other, bulletSO.hurtMask))
+        {
+            gameManager.onProjectileHit.Invoke(baseWeaponDamage, baseWeaponKnockback, other.gameObject, gameObject); // Notify GameManager about the hit
+        }
     }
 
     private void ProjectileDeath()
     {
-        GameObject hitInstance = Instantiate(hitEffectPrefab, transform.position, Quaternion.identity);
+        GameObject hitInstance = Instantiate(bulletSO.hitEffectPrefab, transform.position, Quaternion.identity);
         ChangeColorAndScale(hitInstance);
         Destroy(hitInstance, 0.3f);
         Destroy(gameObject);
@@ -78,7 +89,7 @@ public class Projectile : MonoBehaviour
 
     private void CreatePierceEffect()
     {
-        GameObject hitInstance = Instantiate(hitEffectPrefab, transform.position, Quaternion.identity);
+        GameObject hitInstance = Instantiate(bulletSO.hitEffectPrefab, transform.position, Quaternion.identity);
         ChangeColorAndScale(hitInstance);
         hitInstance.transform.localScale = Vector2.Scale(hitInstance.transform.localScale, new Vector2(0.5f, 0.5f));    
         Destroy(hitInstance, 0.3f);
