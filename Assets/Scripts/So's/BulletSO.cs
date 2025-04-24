@@ -15,6 +15,7 @@ public class BulletSO : ScriptableObject
     [ShowIf("bulletType", BulletType.Projectile)] public float speed = 10f;
     [ShowIf("bulletType", BulletType.Projectile)] public float lifetime = 2f;
     [ShowIf("bulletType", BulletType.HitScan)] public float range = 10f;
+    [ShowIf("bulletType", BulletType.HitScan)] public GameObject LineRendererPrefab; // For optimization
     public GameObject hitEffectPrefab;
     public LayerMask collideMask;
     public LayerMask hurtMask;

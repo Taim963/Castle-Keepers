@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections;
 
 public class RotateAroundTarget : MonoBehaviour
 {
@@ -13,6 +14,76 @@ public class RotateAroundTarget : MonoBehaviour
         if (followMouse) FollowMouseRotation();
         if (followMouseAroundTarget) RotateAround();
     }
+
+    public void OnClickRotateTarget(float timeRotated)
+    {
+        StartCoroutine(RotateTargetCoroutine(timeRotated));
+    }
+
+    private IEnumerator RotateTargetCoroutine(float timeRotated)
+    {
+        // Store original position
+        Vector3 originalPosition = transform.position;
+        float elapsedTime = 0f;
+
+        // Calculate starting angle based on current position
+        Vector2 currentOffset = transform.position - center.position;
+        float startAngle = Mathf.Atan2(currentOffset.y / verticalRadius, currentOffset.x / horizontalRadius);
+
+        // Temporarily disable mouse following
+        bool wasFollowingMouse = followMouseAroundTarget;
+        followMouseAroundTarget = false;
+
+        // Make one full rotation in the specified time
+        while (elapsedTime < timeRotated)
+        {
+            elapsedTime += Time.deltaTime;
+            float completionRatio = elapsedTime / timeRotated;
+
+            // Calculate current angle (is one full rotation)
+            float currentAngle = startAngle + (Mathf.PI * 2 * completionRatio);
+
+            // Calculate position on ellipse
+            float x = Mathf.Cos(currentAngle) * horizontalRadius;
+            float y = Mathf.Sin(currentAngle) * verticalRadius;
+
+            // Update position
+            transform.position = center.position + new Vector3(x, y, 0);
+
+            // If we're also following mouse rotation, update the rotation
+            if (followMouse)
+            {
+                Vector3 direction = transform.position - center.position;
+                float rotationAngle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+                transform.rotation = Quaternion.Euler(new Vector3(0, 0, rotationAngle));
+            }
+
+            yield return null;
+        }
+
+        // Return to original position with a small lerp
+        float returnTime = 0.2f; // Time to return to original position
+        float returnTimer = 0f;
+        Vector3 currentPos = transform.position;
+
+        while (returnTimer < returnTime)
+        {
+            returnTimer += Time.deltaTime;
+            float t = returnTimer / returnTime;
+
+            // Smooth lerp back to original position
+            transform.position = Vector3.Lerp(currentPos, originalPosition, t);
+
+            yield return null;
+        }
+
+        // Ensure we're exactly at the original position
+        transform.position = originalPosition;
+
+        // Restore mouse following if it was enabled
+        followMouseAroundTarget = wasFollowingMouse;
+    }
+
 
     private void FollowMouseRotation()
     {

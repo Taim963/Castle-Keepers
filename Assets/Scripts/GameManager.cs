@@ -11,6 +11,7 @@ public class GameManager : MonoBehaviour
     public UnityEvent onPlayerDeath; // Event triggered when the player dies.
     public UnityEvent onCastleDestroyed; // Event triggered when the castle is destroyed.
     public UnityEvent<int, float, GameObject, GameObject> onProjectileHit;
+    public UnityEvent<float> onSwordSwing; // Event triggered when the sword is swung.
 
     private HashSet<GameObject> enemiesAlive = new HashSet<GameObject>(); // Track all alive enemies.
     private GameObject player; // Reference to the player object.

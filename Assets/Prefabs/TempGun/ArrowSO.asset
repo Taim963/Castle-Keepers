@@ -13,10 +13,11 @@ MonoBehaviour:
   m_Name: ArrowSO
   m_EditorClassIdentifier: 
   bulletType: 0
-  pierce: 1
+  pierce: 0
   speed: 10
   lifetime: 2
-  range: 10
+  range: 100
+  LineRendererPrefab: {fileID: 7721021915917215875, guid: 2cfad0232a505564eb57f63dad4f3460, type: 3}
   hitEffectPrefab: {fileID: 5764864091735545940, guid: aaec1febfb4f9d049a7a95f33b6fcbd3, type: 3}
   collideMask:
     serializedVersion: 2

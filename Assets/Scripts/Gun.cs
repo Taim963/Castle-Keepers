@@ -11,104 +11,67 @@ public class Gun : Weapon
     private Quaternion spreadRotation;
     private Bullet bullet;
 
+    // We’ll use an array of LineRenderers so that burst fire can show multiple tracers at once.
+    private LineRenderer[] lineRenderers;
+    private int currentLineIndex = 0;
+
     protected override void Awake()
     {
+        // Get the bullet component from the projectile prefab.
         bullet = gunSO.projectilePrefab.GetComponent<Bullet>();
         bullet.baseWeaponDamage = gunSO.damage;
         bullet.baseWeaponKnockback = gunSO.knockbackForce;
+
+        // Apply initial random spread.
         float randomAngle = Random.Range(-gunSO.randomSpread, gunSO.randomSpread);
         spreadRotation = Quaternion.Euler(0, 0, randomAngle);
+
+        // Determine how many line renderers we need.
+        int numRenderers = gunSO.weaponType == WeaponType.Burst ? gunSO.bulletsPerBurst : 1;
+        lineRenderers = new LineRenderer[numRenderers];
+
+        // Instantiate line renderers from the prefab defined in BulletSO.
+        for (int i = 0; i < numRenderers; i++)
+        {
+            // Instantiate the prefab as a child of this gun.
+            GameObject lineObj = Instantiate(bullet.bulletSO.LineRendererPrefab, transform);
+            lineObj.name = "LineRenderer_" + i;
+
+            // We assume the prefab already has a configured LineRenderer.
+            LineRenderer lr = lineObj.GetComponent<LineRenderer>();
+            lr.positionCount = 2;
+            lr.enabled = false;
+            lineRenderers[i] = lr;
+        }
     }
 
     public override void TryFire()
     {
-        if (!isFiring) 
+        if (!isFiring)
         {
-            if (bullet.bulletSO.bulletType == BulletType.Projectile) HandleProjectileShots();
-
-            if (bullet.bulletSO.bulletType == BulletType.HitScan) HandleHitScanShots();
+            if (gunSO.weaponType == WeaponType.SingleShot)
+                StartCoroutine(SingleShotFire());
+            else if (gunSO.weaponType == WeaponType.Burst)
+                StartCoroutine(BurstFire());
         }
     }
 
-    private IEnumerator HandleHitScanShots()
-    {
-        isFiring = true;
-        while (Input.GetMouseButton(1)) // Right mouse button for hitscan
-        {
-            Vector2 fireDirection = transform.right; // Forward direction of the gun
-            float range = bullet.bulletSO.range; // Use range from BulletSO
-
-            RaycastHit2D hit = Physics2D.Raycast(transform.position, fireDirection, range, bullet.bulletSO.hurtMask);
-            Vector2 hitPoint = hit.collider != null ? hit.point : (Vector2)transform.position + fireDirection * range;
-
-            StartCoroutine(DrawTracer(transform.position, hitPoint));
-
-            if (hit.collider != null)
-            {
-                bullet.AlertGameManagerOnHit(hit.collider);
-            }
-
-            yield return new WaitForSeconds(gunSO.cooldown); // Same cooldown as projectile firing
-        }
-        isFiring = false;
-    }
-
-
-
-    // Tracer Coroutine (Fades away after a short time)
-    private IEnumerator DrawTracer(Vector2 start, Vector2 end)
-    {
-        GameObject tracer = new GameObject("Tracer");
-        LineRenderer lineRenderer = tracer.AddComponent<LineRenderer>();
-
-        lineRenderer.startWidth = 0.05f;
-        lineRenderer.endWidth = 0.05f;
-        lineRenderer.positionCount = 2;
-        lineRenderer.SetPosition(0, start);
-        lineRenderer.SetPosition(1, end);
-
-        // Optional: Add color gradient (looks cooler)
-        Gradient gradient = new Gradient();
-        gradient.SetKeys(
-            new GradientColorKey[] { new GradientColorKey(Color.yellow, 0f), new GradientColorKey(Color.red, 1f) },
-            new GradientAlphaKey[] { new GradientAlphaKey(1f, 0f), new GradientAlphaKey(0f, 1f) }
-        );
-        lineRenderer.colorGradient = gradient;
-
-        yield return new WaitForSeconds(0.1f); // Short visibility time before disappearing
-        Destroy(tracer);
-    }
-
-
-    private void HandleProjectileShots()
-    {
-        if (gunSO.weaponType == WeaponType.SingleShot)
-        {
-            StartCoroutine(Fire());
-        }
-        else
-        {
-            StartCoroutine(BurstFire());
-        }
-    }
-
-    private IEnumerator Fire()
+    private IEnumerator SingleShotFire()
     {
         isFiring = true;
         while (Input.GetMouseButton(0))
         {
-            Quaternion finalRotation = transform.rotation; // Default rotation
-
-            // Only apply spread rotation if randomSpread is greater than 0
+            Quaternion finalRotation = transform.rotation;
             if (gunSO.randomSpread > 0)
             {
-                float randomAngle = Random.Range(-gunSO.randomSpread, gunSO.randomSpread);
-                Quaternion spreadRotation = Quaternion.Euler(0, 0, randomAngle);
-                finalRotation *= spreadRotation;
+                GetRandomBulletSpread(ref finalRotation);
             }
 
-            // Instantiate projectile with calculated rotation
-            GameObject projectile = Instantiate(gunSO.projectilePrefab, transform.position, finalRotation);
+            if (bullet.bulletSO.bulletType == BulletType.Projectile)
+                InstantiateProjectile(finalRotation);
+            else
+                InstantiateHitScan(finalRotation);
+
             yield return new WaitForSeconds(gunSO.cooldown);
         }
         isFiring = false;
@@ -121,22 +84,110 @@ public class Gun : Weapon
         {
             for (int i = 0; i < gunSO.bulletsPerBurst; i++)
             {
-                Quaternion finalRotation = transform.rotation; // Default rotation
-
-                // Only apply spread rotation if randomSpread is greater than 0
+                Quaternion finalRotation = transform.rotation;
                 if (gunSO.randomSpread > 0)
                 {
-                    float randomAngle = Random.Range(-gunSO.randomSpread, gunSO.randomSpread);
-                    Quaternion spreadRotation = Quaternion.Euler(0, 0, randomAngle);
-                    finalRotation *= spreadRotation;
+                    GetRandomBulletSpread(ref finalRotation);
                 }
 
-                // Instantiate projectile with calculated rotation
-                GameObject projectile = Instantiate(gunSO.projectilePrefab, transform.position, finalRotation);
+                if (bullet.bulletSO.bulletType == BulletType.Projectile)
+                    InstantiateProjectile(finalRotation);
+                else
+                    InstantiateHitScan(finalRotation);
+
                 yield return new WaitForSeconds(gunSO.burstCooldown);
             }
             yield return new WaitForSeconds(gunSO.cooldown);
         }
         isFiring = false;
+    }
+
+    private void InstantiateProjectile(Quaternion finalRotation)
+    {
+        // Simply instantiate the projectile prefab.
+        Instantiate(gunSO.projectilePrefab, transform.position, finalRotation);
+    }
+
+    private void InstantiateHitScan(Quaternion finalRotation)
+    {
+        Vector2 direction = finalRotation * Vector2.right;
+
+        // Combine collide and hurt layer masks.
+        LayerMask combinedMask = bullet.bulletSO.collideMask | bullet.bulletSO.hurtMask;
+        RaycastHit2D[] hits = Physics2D.RaycastAll(transform.position, direction, bullet.bulletSO.range, combinedMask);
+
+        System.Array.Sort(hits, (a, b) => a.distance.CompareTo(b.distance));
+
+        // Default endpoint is at maximum range.
+        Vector2 endPoint = (Vector2)transform.position + direction * bullet.bulletSO.range;
+        int hitCount = 0;
+
+        foreach (RaycastHit2D hit in hits)
+        {
+            bool isCollidable = (bullet.bulletSO.collideMask.value & (1 << hit.collider.gameObject.layer)) != 0;
+            bool canBeHurt = (bullet.bulletSO.hurtMask.value & (1 << hit.collider.gameObject.layer)) != 0;
+
+            if (canBeHurt)
+            {
+                hitCount++;
+                Debug.Log($"Hit hurtable object: {hit.collider.name}");
+
+                Enemy enemy = hit.collider.GetComponent<Enemy>();
+                if (enemy != null)
+                    enemy.OnProjectileCollide(gunSO.damage, gunSO.knockbackForce, hit.collider.gameObject, gameObject);
+
+                // If pierce is 0, then we should hit only one target.
+                if (hitCount > bullet.bulletSO.pierce)
+                {
+                    endPoint = hit.point;
+                    break;
+                }
+            }
+            else if (isCollidable)
+            {
+                endPoint = hit.point;
+                Debug.Log($"Hit collidable object: {hit.collider.name}");
+                break;
+            }
+        }
+
+        // Use the next available LineRenderer.
+        LineRenderer lr = lineRenderers[currentLineIndex];
+        currentLineIndex = (currentLineIndex + 1) % lineRenderers.Length;
+        StartCoroutine(DrawLine(transform.position, endPoint, lr));
+    }
+
+    private IEnumerator DrawLine(Vector2 startPoint, Vector2 endPoint, LineRenderer lr)
+    {
+        // Adjust these values to change how the tracer looks.
+        float tracerLength = 1f;    // How long the tracer "tail" is.
+        float tracerSpeed = 200f;   // How fast the tracer moves (units per second).
+
+        lr.enabled = true;
+        Vector2 direction = (endPoint - startPoint).normalized;
+        float totalDistance = Vector2.Distance(startPoint, endPoint);
+        float distanceTraveled = 0f;
+
+        while (distanceTraveled < totalDistance)
+        {
+            distanceTraveled += tracerSpeed * Time.deltaTime;
+            distanceTraveled = Mathf.Min(distanceTraveled, totalDistance);
+
+            Vector2 currentPosition = startPoint + (direction * distanceTraveled);
+            Vector2 tracerStart = currentPosition - (direction * tracerLength);
+
+            lr.SetPosition(0, tracerStart);
+            lr.SetPosition(1, currentPosition);
+
+            yield return null;
+        }
+        lr.enabled = false;
+    }
+
+    private void GetRandomBulletSpread(ref Quaternion finalRotation)
+    {
+        float randomAngle = Random.Range(-gunSO.randomSpread, gunSO.randomSpread);
+        Quaternion spreadRot = Quaternion.Euler(0, 0, randomAngle);
+        finalRotation *= spreadRot;
     }
 }
