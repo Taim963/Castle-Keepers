@@ -588,17 +588,6 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!114 &191379576 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 5260044248624576812, guid: fa37c524feff2ce4b8fb02fee0a98544, type: 3}
-  m_PrefabInstance: {fileID: 1879906712}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c1e0945589afffd44b6cc7810a0eeafa, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &200892418
 GameObject:
   m_ObjectHideFlags: 0
@@ -3607,7 +3596,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 13ba00bd96a7bbe4a9a4f6deb806d8b9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  healthBar: {fileID: 191379576}
+  healthBar: {fileID: 0}
   maxHealth: 200
   deathEffect: {fileID: 5764864091735545940, guid: aaec1febfb4f9d049a7a95f33b6fcbd3, type: 3}
 --- !u!1 &1583054202
@@ -3975,6 +3964,7 @@ GameObject:
   - component: {fileID: 1828180422}
   - component: {fileID: 1828180421}
   - component: {fileID: 1828180424}
+  - component: {fileID: 1828180425}
   m_Layer: 7
   m_Name: Player
   m_TagString: Player
@@ -4076,10 +4066,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3fd4cad9e71bbf24a96ff73d71db1959, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  healthBar: {fileID: 2117754122}
-  maxHealth: 100
-  speed: 15
-  deathEffect: {fileID: 5764864091735545940, guid: aaec1febfb4f9d049a7a95f33b6fcbd3, type: 3}
+  _entitySO: {fileID: 0}
+  playerSO: {fileID: 11400000, guid: c03cacfac4187f841963f28344bd7dcb, type: 2}
+--- !u!114 &1828180425
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1828180419}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0c2a9c7f06fb8e4abe667dfc1ec165a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1833872246
 GameObject:
   m_ObjectHideFlags: 0
@@ -4980,17 +4980,6 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!114 &2117754122 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 5260044248624576812, guid: fa37c524feff2ce4b8fb02fee0a98544, type: 3}
-  m_PrefabInstance: {fileID: 4921695669840867821}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c1e0945589afffd44b6cc7810a0eeafa, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &2117877414
 GameObject:
   m_ObjectHideFlags: 0

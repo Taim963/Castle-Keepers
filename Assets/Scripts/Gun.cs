@@ -134,7 +134,7 @@ public class Gun : Weapon
 
                 Enemy enemy = hit.collider.GetComponent<Enemy>();
                 if (enemy != null)
-                    enemy.OnProjectileCollide(gunSO.damage, gunSO.knockbackForce, hit.collider.gameObject, gameObject);
+                    enemy.OnHurtCollide(gunSO.damage, gunSO.knockbackForce, hit.collider.gameObject, gameObject);
 
                 // If pierce is 0, then we should hit only one target.
                 if (hitCount > bullet.bulletSO.pierce)

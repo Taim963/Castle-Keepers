@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
-public class Health : MonoBehaviour
+public class HealthBar : MonoBehaviour
 {
     public Slider slider;
     public TextMeshProUGUI healthText;

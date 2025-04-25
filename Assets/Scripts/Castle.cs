@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class Castle : MonoBehaviour
 {
-    public Health healthBar;
+    public HealthBar healthBar;
     public int maxHealth = 100;
     public GameObject deathEffect;
 

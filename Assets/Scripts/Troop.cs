@@ -12,7 +12,7 @@ public class Troop : MonoBehaviour
     // References
     public NavMeshHandler navMeshHandler; // Reference to the NavMeshHandler script
     public GameObject attackPrefab;      // Array of attack prefabs
-    public Health healthBar;
+    public HealthBar healthBar;
     public int health;
 
     // Instead of targetTransform we now use currentTarget as a simple position
@@ -29,7 +29,7 @@ public class Troop : MonoBehaviour
         GameManager.instance.onProjectileHit.AddListener(OnProjectileCollide);
 
         // Initialize health
-        healthBar = GetComponentInChildren<Health>();
+        healthBar = GetComponentInChildren<HealthBar>();
         health = troopSO.maxHealth;
         healthBar.SetMaxHealth(troopSO.maxHealth);
 

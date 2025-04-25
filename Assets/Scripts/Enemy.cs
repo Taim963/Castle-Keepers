@@ -16,7 +16,7 @@ public class Enemy : MonoBehaviour
     // References
     public NavMeshHandler navMeshHandler; // Reference to the NavMeshHandler script
     public GameObject attackPrefab;      // Array of attack prefabs
-    public Health healthBar;
+    public HealthBar healthBar;
     public int health;
 
     // Instead of targetTransform we now use currentTarget as a simple position
@@ -30,10 +30,10 @@ public class Enemy : MonoBehaviour
 
         // Register enemy in GameManager
         GameManager.instance.RegisterEnemy(gameObject);
-        GameManager.instance.onProjectileHit.AddListener(OnProjectileCollide);
+        GameManager.instance.onProjectileHit.AddListener(OnHurtCollide);
 
         // Initialize health
-        healthBar = GetComponentInChildren<Health>();
+        healthBar = GetComponentInChildren<HealthBar>();
         health = enemySO.maxHealth;
         healthBar.SetMaxHealth(enemySO.maxHealth);
 
@@ -142,7 +142,7 @@ public class Enemy : MonoBehaviour
         currentTarget = navMeshHandler.target;
     }
 
-    public void OnProjectileCollide(int damage, float knockbackForce, GameObject thisEnemy, GameObject projectile)
+    public void OnHurtCollide(int damage, float knockbackForce, GameObject thisEnemy, GameObject projectile)
     {
         if (thisEnemy != gameObject) return;
 
