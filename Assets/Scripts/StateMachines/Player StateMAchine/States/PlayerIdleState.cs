@@ -2,8 +2,10 @@ using UnityEngine;
 
 public class PlayerIdleState : PlayerBaseState
 {
-    public PlayerIdleState(PlayerStateManager.PlayerState stateKey, PlayerStateManager stateMachine, GameObject player)
-        : base(stateKey, stateMachine, player) { }
+    public PlayerIdleState(PlayerStateManager.PlayerState stateKey, PlayerStateManager stateMachine)
+        : base(stateKey, stateMachine)
+    {
+    }
 
     public override void UpdateState()
     {
@@ -19,6 +21,11 @@ public class PlayerIdleState : PlayerBaseState
         if (moveHorizontal != 0 || moveVertical != 0)
         {
             return PlayerStateManager.PlayerState.Move;
+        }
+
+        if (Input.GetKeyDown(KeyCode.LeftControl) && player.canDash)
+        {
+            return PlayerStateManager.PlayerState.Dash;
         }
 
         return StateKey; // Stay in idle state

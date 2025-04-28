@@ -1,31 +1,41 @@
-using UnityEngine;
 using System.Collections.Generic;
+using UnityEngine;
 
 public class PlayerStateManager : StateManager<PlayerStateManager.PlayerState>
 {
-    #region // Variables
     [HideInInspector] public Player PlayerScript { get; private set; }
     [HideInInspector] public Rigidbody2D Rb { get; private set; }
     [HideInInspector] public PlayerSO PlayerSO { get; private set; }
     [HideInInspector] public GameObject Player { get; private set; }
-    #endregion
 
     private void Awake()
     {
-        #region // Get references
+        // GetComponent calls—make sure these components exist on the GameObject!
         PlayerScript = GetComponent<Player>();
-        PlayerSO = PlayerScript.playerSO;
-        Rb = GetComponent<Rigidbody2D>();
-        Player = gameObject;
-        #endregion
+        if (PlayerScript == null)
+        {
+            Debug.LogError("Player component not found on the GameObject");
+        }
+        else
+        {
+            PlayerSO = PlayerScript.playerSO;
+        }
 
-        #region // Initialize the state machine and send context
+        Rb = GetComponent<Rigidbody2D>();
+        if (Rb == null)
+        {
+            Debug.LogError("Rigidbody2D component not found on the GameObject");
+        }
+        Player = gameObject;
+
+        // Initialize the state machine with plain C# state objects
         states = new Dictionary<PlayerState, BaseState<PlayerState>>
         {
-            { PlayerState.Idle, new PlayerIdleState(PlayerState.Idle, this, gameObject) },
-            { PlayerState.Move, new PlayerMoveState(PlayerState.Move, this, gameObject) }
+            { PlayerState.Idle, new PlayerIdleState(PlayerState.Idle, this) },
+            { PlayerState.Move, new PlayerMoveState(PlayerState.Move, this) },
+            { PlayerState.Dash, new PlayerDashState(PlayerState.Dash, this) }
+            // Add other states as needed.
         };
-        #endregion
 
         // Default state
         currentState = states[PlayerState.Idle];
@@ -37,7 +47,7 @@ public class PlayerStateManager : StateManager<PlayerStateManager.PlayerState>
         Move,
         Attack,
         Dash,
-        hit,
+        Hit,
         Dead,
     }
 }

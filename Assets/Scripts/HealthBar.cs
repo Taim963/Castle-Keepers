@@ -20,4 +20,10 @@ public class HealthBar : MonoBehaviour
         slider.value = health;
         if (showText) healthText.text = health.ToString();
     }
+
+    public static int TakeDamage(int currentHealth, int damage)
+    {
+        currentHealth -= damage;
+        return currentHealth;
+    }
 }

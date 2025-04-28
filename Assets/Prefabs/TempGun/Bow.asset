@@ -18,7 +18,9 @@ MonoBehaviour:
   projectilePrefab: {fileID: 1888573091861739242, guid: a02edf20c8cca844d89b68a69775454f, type: 3}
   damage: 10
   knockbackForce: 1
+  selfKnockbackForce: 3
   bulletsPerBurst: 30
-  burstCooldown: 0.01
-  cooldown: 0.3
+  burstCooldown: 0
+  cooldown: 0.5
+  preFireCooldown: 0
   randomSpread: 5

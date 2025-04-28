@@ -16,3 +16,8 @@ MonoBehaviour:
   speed: 10
   KnockbackResistance: 0.5
   deathEffect: {fileID: 5764864091735545940, guid: aaec1febfb4f9d049a7a95f33b6fcbd3, type: 3}
+  accelerationRate: 50
+  decelerationRate: 1000
+  dashForce: 50
+  dashDuration: 0.2
+  dashCooldown: 1

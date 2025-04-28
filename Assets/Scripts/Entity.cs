@@ -2,11 +2,13 @@ using UnityEngine;
 
 public class Entity : MonoBehaviour
 {
-    public EntitySO _entitySO;  // backing field
+    protected EntitySO _entitySO;  // backing field
     public virtual EntitySO entitySO => _entitySO;  // virtual property
 
     private int health;
     private HealthBar healthBar;
+
+    
 
     protected virtual void Awake()
     {
@@ -24,7 +26,7 @@ public class Entity : MonoBehaviour
 
     public virtual void TakeDamage(int damage)
     {
-        health -= damage;
+        health = HealthBar.TakeDamage(health, damage);
         healthBar.SetHealth(health);
         if (health <= 0)
         {

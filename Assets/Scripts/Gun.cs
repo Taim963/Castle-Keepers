@@ -14,6 +14,15 @@ public class Gun : Weapon
     // We’ll use an array of LineRenderers so that burst fire can show multiple tracers at once.
     private LineRenderer[] lineRenderers;
     private int currentLineIndex = 0;
+    private Entity Holder; // Reference to the entity holding the gun
+
+    #region // Item rotation
+    public Transform center; // The center point around which the item rotates
+    public bool followMouse = true; // makes the Item rotate according to the mouse position, mainly for ranged weapons
+    public bool followMouseAroundTarget = true; // makes the Item rotate around the center according to the mouse position, mainly for ranged weapons
+    public float horizontalRadius = 5f;
+    public float verticalRadius = 3f;
+    #endregion
 
     protected override void Awake()
     {
@@ -27,7 +36,7 @@ public class Gun : Weapon
         spreadRotation = Quaternion.Euler(0, 0, randomAngle);
 
         // Determine how many line renderers we need.
-        int numRenderers = gunSO.weaponType == WeaponType.Burst ? gunSO.bulletsPerBurst : 1;
+        int numRenderers = gunSO.weaponType == WeaponType.Burst ? gunSO.bulletsPerBurst * 2: 1;
         lineRenderers = new LineRenderer[numRenderers];
 
         // Instantiate line renderers from the prefab defined in BulletSO.
@@ -43,8 +52,17 @@ public class Gun : Weapon
             lr.enabled = false;
             lineRenderers[i] = lr;
         }
+
+        Holder = GetComponentInParent<Entity>();
     }
 
+    protected override void Update()
+    {
+        if (followMouse) FollowMouseRotation();
+        if (followMouseAroundTarget) RotateAround();
+    }
+
+    #region // Firing logic
     public override void TryFire()
     {
         if (!isFiring)
@@ -56,11 +74,13 @@ public class Gun : Weapon
         }
     }
 
+    
     private IEnumerator SingleShotFire()
     {
         isFiring = true;
         while (Input.GetMouseButton(0))
         {
+            yield return new WaitForSeconds(gunSO.preFireCooldown);
             Quaternion finalRotation = transform.rotation;
             if (gunSO.randomSpread > 0)
             {
@@ -72,6 +92,8 @@ public class Gun : Weapon
             else
                 InstantiateHitScan(finalRotation);
 
+            Vector2 selfKnockbackDirection = finalRotation * Vector2.right;
+            Holder.TakeKnockback(gunSO.selfKnockbackForce, -selfKnockbackDirection);
             yield return new WaitForSeconds(gunSO.cooldown);
         }
         isFiring = false;
@@ -82,6 +104,7 @@ public class Gun : Weapon
         isFiring = true;
         while (Input.GetMouseButton(0))
         {
+            yield return new WaitForSeconds(gunSO.preFireCooldown);
             for (int i = 0; i < gunSO.bulletsPerBurst; i++)
             {
                 Quaternion finalRotation = transform.rotation;
@@ -95,6 +118,17 @@ public class Gun : Weapon
                 else
                     InstantiateHitScan(finalRotation);
 
+                if (gunSO.burstCooldown > 0)
+                {
+                    Vector2 selfKnockbackDirection = finalRotation * Vector2.right;
+                    Holder.TakeKnockback(gunSO.selfKnockbackForce, -selfKnockbackDirection);
+                }
+
+                if (gunSO.burstCooldown <= 0)
+                {
+                    Vector2 selfKnockbackDirection = finalRotation * Vector2.right;
+                    Holder.TakeKnockback(gunSO.selfKnockbackForce, -selfKnockbackDirection);
+                }
                 yield return new WaitForSeconds(gunSO.burstCooldown);
             }
             yield return new WaitForSeconds(gunSO.cooldown);
@@ -190,4 +224,61 @@ public class Gun : Weapon
         Quaternion spreadRot = Quaternion.Euler(0, 0, randomAngle);
         finalRotation *= spreadRot;
     }
+    #endregion
+
+    #region // Weapon rotation logic
+    private void FollowMouseRotation()
+    {
+        Vector3 mousePos = Input.mousePosition;
+        mousePos.z = Camera.main.nearClipPlane;
+        Vector3 worldPos = Camera.main.ScreenToWorldPoint(mousePos);
+        Vector3 direction = worldPos - transform.position;
+
+        // Calculate angle and rotate around Z-axis for 2D
+        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+        transform.rotation = Quaternion.Euler(new Vector3(0, 0, angle));
+    }
+
+
+    private void RotateAround()
+    {
+        if (center != null)
+        {
+            Vector3 mousePos = Input.mousePosition;
+            mousePos.z = Camera.main.nearClipPlane;
+            Vector3 worldPos = Camera.main.ScreenToWorldPoint(mousePos);
+            Vector3 direction = worldPos - center.position;
+
+            float angle = Mathf.Atan2(direction.y, direction.x);
+            float x = Mathf.Cos(angle) * horizontalRadius;
+            float y = Mathf.Sin(angle) * verticalRadius;
+
+            Vector3 offset = new Vector3(x, y, 0);
+            transform.position = center.position + offset;
+        }
+    }
+
+    private void OnDrawGizmosSelected()
+    {
+        if (center != null)
+        {
+            Gizmos.color = Color.green;
+            const int segments = 50;
+            Vector3[] points = new Vector3[segments + 1];
+
+            for (int i = 0; i <= segments; i++)
+            {
+                float angle = i * 2 * Mathf.PI / segments;
+                float x = Mathf.Cos(angle) * horizontalRadius;
+                float y = Mathf.Sin(angle) * verticalRadius;
+                points[i] = center.position + new Vector3(x, y, 0);
+            }
+
+            for (int i = 0; i < segments; i++)
+            {
+                Gizmos.DrawLine(points[i], points[i + 1]);
+            }
+        }
+    }
+    #endregion
 }

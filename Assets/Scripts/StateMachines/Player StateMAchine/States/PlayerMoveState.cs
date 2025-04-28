@@ -2,23 +2,22 @@ using UnityEngine;
 
 public class PlayerMoveState : PlayerBaseState
 {
-    private Rigidbody2D rb;
-    private PlayerSO playerSO;
-
-    public PlayerMoveState(PlayerStateManager.PlayerState stateKey, PlayerStateManager stateMachine, GameObject player)
-        : base(stateKey, stateMachine, player)
+    public PlayerMoveState(PlayerStateManager.PlayerState stateKey, PlayerStateManager stateMachine)
+        : base(stateKey, stateMachine)
     {
-        // Get references in constructor
-        this.rb = stateMachine.Rb;
-        this.playerSO = stateMachine.PlayerSO;
     }
 
     public override void UpdateState()
     {
-        float moveHorizontal = Input.GetAxis("Horizontal");
-        float moveVertical = Input.GetAxis("Vertical");
-        Vector2 movement = new Vector2(moveHorizontal, moveVertical).normalized;
-        rb.linearVelocity = movement * playerSO.speed;
+        Vector2 moveInput = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
+        moveInput.Normalize(); // Normalize to prevent faster diagonal movement
+
+        player.Move(moveInput);
+    }
+
+    public override void ExitState()
+    {
+        player.Move(Vector2.zero); // Stop movement when exiting the state
     }
 
     public override PlayerStateManager.PlayerState GetNextState()
@@ -29,6 +28,11 @@ public class PlayerMoveState : PlayerBaseState
         if (moveHorizontal == 0 && moveVertical == 0)
         {
             return PlayerStateManager.PlayerState.Idle;
+        }
+
+        if (Input.GetKeyDown(KeyCode.LeftControl) && player.canDash)
+        {
+            return PlayerStateManager.PlayerState.Dash;
         }
 
         return StateKey;

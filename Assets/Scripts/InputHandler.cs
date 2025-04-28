@@ -5,6 +5,7 @@ public class InputHandler : MonoBehaviour
 {
     public UnityEvent onLeftClick;
     public UnityEvent onEClick;
+    public UnityEvent onCTRLClick;
 
     private bool editMode = false;
     private bool lostGame = false;
@@ -33,6 +34,11 @@ public class InputHandler : MonoBehaviour
         if (Input.GetMouseButtonDown(0) && !editMode)
         {
             onLeftClick.Invoke();
+        }
+
+        if (Input.GetKeyDown(KeyCode.LeftControl))
+        {
+            onCTRLClick.Invoke();
         }
     }
 

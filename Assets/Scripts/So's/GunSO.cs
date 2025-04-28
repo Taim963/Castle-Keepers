@@ -20,9 +20,11 @@ public class GunSO : ScriptableObject
     [Header("Gun Stats")]
     public int damage = 10; // Damage dealt per bullet
     public float knockbackForce = 1; // Knockback force applied to the target
+    public float selfKnockbackForce = 1; // Knockback force applied to the player
     [ShowIf("weaponType", WeaponType.Burst)] public int bulletsPerBurst = 3;
     [ShowIf("weaponType", WeaponType.Burst)] public float burstCooldown = 0.1f;
     public float cooldown = 0.3f;
+    public float preFireCooldown = 0f; // Time before the gun starts firing
     public float randomSpread = 0.1f; // Random spread for bullets direction
     #endregion
 }

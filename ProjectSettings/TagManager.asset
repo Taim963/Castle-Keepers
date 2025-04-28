@@ -12,6 +12,7 @@ TagManager:
   - Hurt2
   - Troop
   - Castle
+  - Path
   layers:
   - Default
   - TransparentFX
@@ -22,8 +23,8 @@ TagManager:
   - Enemies
   - Player
   - Obstacles
-  - Effects
-  - Enemy Attacks
+  - Hurt
+  - Projectiles
   - Towers
   - Castle
   - Troops

@@ -1,7 +1,7 @@
 using UnityEngine;
 using System;
 
-public abstract class BaseState<EState> : MonoBehaviour where EState : Enum
+public abstract class BaseState<EState> where EState : Enum
 {
     public EState StateKey { get; private set; }
     public BaseState(EState key)
@@ -13,7 +13,7 @@ public abstract class BaseState<EState> : MonoBehaviour where EState : Enum
     public abstract void UpdateState();
     public abstract void ExitState();
     public abstract EState GetNextState();
-    public abstract void OnTriggerEnter2D(Collider2D other);
-    public abstract void OnTriggerExit2D(Collider2D other);
-    public abstract void OnTriggerStay2D(Collider2D other);
+    public virtual void OnTriggerEnter2D(Collider2D other) { }
+    public virtual void OnTriggerExit2D(Collider2D other) { }
+    public virtual void OnTriggerStay2D(Collider2D other) { }
 }
