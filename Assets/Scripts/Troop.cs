@@ -22,7 +22,7 @@ public class Troop : MonoBehaviour
     private void Start()
     {
         projectile = attackPrefab.GetComponent<Bullet>();
-        projectile.baseWeaponDamage = troopSO.damage;
+
 
         // Register enemy in GameManager
         GameManager.instance.RegisterEnemy(gameObject);
@@ -76,18 +76,18 @@ public class Troop : MonoBehaviour
         // Calculate rotation angle so that the attack faces the target
         float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
 
-        if (projectile.bulletSO.speed <= 0)
-        {
-            // Perform a melee attack instantiation with a raycast, using the enemy's position as the origin.
-            RaycastHit2D hit = Physics2D.Raycast(transform.position, normalizedDirection, troopSO.attackRange, troopSO.rayCastCollide);
-            Vector3 spawnPosition = hit.point;
-            Instantiate(attackPrefab, spawnPosition, Quaternion.Euler(0, 0, angle));
-        }
-        else
-        {
-            // Perform a projectile attack instantiation
-            Instantiate(attackPrefab, transform.position + offset, Quaternion.Euler(0, 0, angle));
-        }
+        //if (projectile.bulletSO.speed <= 0)
+        //{
+        //    // Perform a melee attack instantiation with a raycast, using the enemy's position as the origin.
+        //    RaycastHit2D hit = Physics2D.Raycast(transform.position, normalizedDirection, troopSO.attackRange, troopSO.rayCastCollide);
+        //    Vector3 spawnPosition = hit.point;
+        //    Instantiate(attackPrefab, spawnPosition, Quaternion.Euler(0, 0, angle));
+        //}
+        //else
+        //{
+        //    // Perform a projectile attack instantiation
+        //    Instantiate(attackPrefab, transform.position + offset, Quaternion.Euler(0, 0, angle));
+        //}
     }
 
     // Check if the enenmy is being attacked by 3 or more troops by checking the list attackers from the enemy script, if so, change the target to a different one with the highest priority and closest to troop

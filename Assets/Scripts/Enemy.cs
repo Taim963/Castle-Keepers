@@ -26,7 +26,6 @@ public class Enemy : MonoBehaviour
     private void Start()
     {
         bullet = attackPrefab.GetComponent<Bullet>();
-        bullet.baseWeaponDamage = enemySO.damage;
 
         // Register enemy in GameManager
         GameManager.instance.RegisterEnemy(gameObject);
@@ -88,18 +87,18 @@ public class Enemy : MonoBehaviour
         // Calculate rotation angle so that the attack faces the target
         float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
 
-        if (bullet.bulletSO.speed <= 0)
-        {
-            // Perform a melee attack instantiation with a raycast, using the enemy's position as the origin.
-            RaycastHit2D hit = Physics2D.Raycast(transform.position, normalizedDirection, enemySO.attackRange, enemySO.rayCastCollide);
-            Vector3 spawnPosition = hit.point;
-            Instantiate(attackPrefab, spawnPosition, Quaternion.Euler(0, 0, angle));
-        }
-        else
-        {
-            // Perform a projectile attack instantiation
-            Instantiate(attackPrefab, transform.position + offset, Quaternion.Euler(0, 0, angle));
-        }
+        //if (bullet.bulletSO.speed <= 0)
+        //{
+        //    // Perform a melee attack instantiation with a raycast, using the enemy's position as the origin.
+        //    RaycastHit2D hit = Physics2D.Raycast(transform.position, normalizedDirection, enemySO.attackRange, enemySO.rayCastCollide);
+        //    Vector3 spawnPosition = hit.point;
+        //    Instantiate(attackPrefab, spawnPosition, Quaternion.Euler(0, 0, angle));
+        //}
+        //else
+        //{
+        //    // Perform a projectile attack instantiation
+        //    Instantiate(attackPrefab, transform.position + offset, Quaternion.Euler(0, 0, angle));
+        //}
     }
 
     private bool IsReadyToAttack()

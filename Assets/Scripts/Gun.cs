@@ -26,24 +26,19 @@ public class Gun : Weapon
 
     protected override void Awake()
     {
-        // Get the bullet component from the projectile prefab.
-        bullet = gunSO.projectilePrefab.GetComponent<Bullet>();
-        bullet.baseWeaponDamage = gunSO.damage;
-        bullet.baseWeaponKnockback = gunSO.knockbackForce;
-
         // Apply initial random spread.
         float randomAngle = Random.Range(-gunSO.randomSpread, gunSO.randomSpread);
         spreadRotation = Quaternion.Euler(0, 0, randomAngle);
 
         // Determine how many line renderers we need.
-        int numRenderers = gunSO.weaponType == WeaponType.Burst ? gunSO.bulletsPerBurst * 2: 1;
+        int numRenderers = gunSO.bulletFireType == bulletFireType.Burst ? gunSO.bulletsPerBurst * 2: 1;
         lineRenderers = new LineRenderer[numRenderers];
 
         // Instantiate line renderers from the prefab defined in BulletSO.
         for (int i = 0; i < numRenderers; i++)
         {
             // Instantiate the prefab as a child of this gun.
-            GameObject lineObj = Instantiate(bullet.bulletSO.LineRendererPrefab, transform);
+            GameObject lineObj = Instantiate(gunSO.LineRendererPrefab, transform);
             lineObj.name = "LineRenderer_" + i;
 
             // We assume the prefab already has a configured LineRenderer.
@@ -67,9 +62,9 @@ public class Gun : Weapon
     {
         if (!isFiring)
         {
-            if (gunSO.weaponType == WeaponType.SingleShot)
+            if (gunSO.bulletFireType == bulletFireType.SingleShot)
                 StartCoroutine(SingleShotFire());
-            else if (gunSO.weaponType == WeaponType.Burst)
+            else if (gunSO.bulletFireType == bulletFireType.Burst)
                 StartCoroutine(BurstFire());
         }
     }
@@ -87,7 +82,7 @@ public class Gun : Weapon
                 GetRandomBulletSpread(ref finalRotation);
             }
 
-            if (bullet.bulletSO.bulletType == BulletType.Projectile)
+            if (gunSO.bulletType == BulletType.Projectile)
                 InstantiateProjectile(finalRotation);
             else
                 InstantiateHitScan(finalRotation);
@@ -102,44 +97,55 @@ public class Gun : Weapon
     private IEnumerator BurstFire()
     {
         isFiring = true;
+
+        Quaternion finalRotation = transform.rotation;
         while (Input.GetMouseButton(0))
         {
             yield return new WaitForSeconds(gunSO.preFireCooldown);
             for (int i = 0; i < gunSO.bulletsPerBurst; i++)
             {
-                Quaternion finalRotation = transform.rotation;
                 if (gunSO.randomSpread > 0)
                 {
                     GetRandomBulletSpread(ref finalRotation);
                 }
 
-                if (bullet.bulletSO.bulletType == BulletType.Projectile)
+                if (gunSO.bulletType == BulletType.Projectile)
                     InstantiateProjectile(finalRotation);
                 else
                     InstantiateHitScan(finalRotation);
 
+                // Only wait if burstCooldown is greater than 0
                 if (gunSO.burstCooldown > 0)
                 {
                     Vector2 selfKnockbackDirection = finalRotation * Vector2.right;
                     Holder.TakeKnockback(gunSO.selfKnockbackForce, -selfKnockbackDirection);
-                }
 
-                if (gunSO.burstCooldown <= 0)
-                {
-                    Vector2 selfKnockbackDirection = finalRotation * Vector2.right;
-                    Holder.TakeKnockback(gunSO.selfKnockbackForce, -selfKnockbackDirection);
+                    yield return new WaitForSeconds(gunSO.burstCooldown);
                 }
-                yield return new WaitForSeconds(gunSO.burstCooldown);
             }
+
+            if (gunSO.burstCooldown <= 0)
+            {
+                Vector2 selfKnockbackDirection = finalRotation * Vector2.right;
+                Holder.TakeKnockback(gunSO.selfKnockbackForce, -selfKnockbackDirection);
+            }
+
             yield return new WaitForSeconds(gunSO.cooldown);
         }
         isFiring = false;
     }
 
+
     private void InstantiateProjectile(Quaternion finalRotation)
     {
         // Simply instantiate the projectile prefab.
         Instantiate(gunSO.projectilePrefab, transform.position, finalRotation);
+        GameObject bulletObj = Instantiate(gunSO.projectilePrefab, transform.position, finalRotation);
+        if (bulletObj.TryGetComponent<Bullet>(out var bulletComponent))
+        {
+            bulletComponent.gunSO = gunSO;
+            // Add any other bullet setup here
+        }
     }
 
     private void InstantiateHitScan(Quaternion finalRotation)
@@ -147,19 +153,19 @@ public class Gun : Weapon
         Vector2 direction = finalRotation * Vector2.right;
 
         // Combine collide and hurt layer masks.
-        LayerMask combinedMask = bullet.bulletSO.collideMask | bullet.bulletSO.hurtMask;
-        RaycastHit2D[] hits = Physics2D.RaycastAll(transform.position, direction, bullet.bulletSO.range, combinedMask);
+        LayerMask combinedMask = gunSO.collideMask | gunSO.hurtMask;
+        RaycastHit2D[] hits = Physics2D.RaycastAll(transform.position, direction, gunSO.range, combinedMask);
 
         System.Array.Sort(hits, (a, b) => a.distance.CompareTo(b.distance));
 
         // Default endpoint is at maximum range.
-        Vector2 endPoint = (Vector2)transform.position + direction * bullet.bulletSO.range;
+        Vector2 endPoint = (Vector2)transform.position + direction * gunSO.range;
         int hitCount = 0;
 
         foreach (RaycastHit2D hit in hits)
         {
-            bool isCollidable = (bullet.bulletSO.collideMask.value & (1 << hit.collider.gameObject.layer)) != 0;
-            bool canBeHurt = (bullet.bulletSO.hurtMask.value & (1 << hit.collider.gameObject.layer)) != 0;
+            bool isCollidable = (gunSO.collideMask.value & (1 << hit.collider.gameObject.layer)) != 0;
+            bool canBeHurt = (gunSO.hurtMask.value & (1 << hit.collider.gameObject.layer)) != 0;
 
             if (canBeHurt)
             {
@@ -171,7 +177,7 @@ public class Gun : Weapon
                     enemy.OnHurtCollide(gunSO.damage, gunSO.knockbackForce, hit.collider.gameObject, gameObject);
 
                 // If pierce is 0, then we should hit only one target.
-                if (hitCount > bullet.bulletSO.pierce)
+                if (hitCount > gunSO.pierce + gunSO.bulletPierce)
                 {
                     endPoint = hit.point;
                     break;

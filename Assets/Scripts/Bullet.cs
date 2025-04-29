@@ -7,12 +7,14 @@ using static Bullet;
 
 public class Bullet : Hurt
 {
-    public BulletSO bulletSO; // Reference to the Bullet ScriptableObject
+    private int damageSum;
+    private float knockbackSum;
+    private int pierceSum;
+    private float speedSum;
+
+    [HideInInspector] public WeaponSO gunSO; // refrence to the gun data
 
     private HashSet<GameObject> hitEnemies = new HashSet<GameObject>(); // Track enemies, not colliders
-
-    [HideInInspector] public int baseWeaponDamage;
-    [HideInInspector] public float baseWeaponKnockback;
 
     [HideInInspector] public GameManager gameManager; // Reference to the GameManager
 
@@ -20,15 +22,25 @@ public class Bullet : Hurt
     {
         gameManager = GameManager.instance; // Get the GameManager instance
 
-        if (bulletSO.bulletType == BulletType.Projectile)
+        if (gunSO.bulletType == BulletType.Projectile)
         {
-            Invoke("ProjectileDeath", bulletSO.lifetime);
-        } 
+            Invoke("ProjectileDeath", gunSO.lifetime);
+        }
+
+        SetVars();
+    }
+
+    private void SetVars()
+    {
+        damageSum = gunSO.bulletDamage + gunSO.damage;
+        knockbackSum = gunSO.bulletKnockbackForce + gunSO.knockbackForce;
+        pierceSum = gunSO.bulletPierce + gunSO.pierce;
+        speedSum = gunSO.bulletSpeed + gunSO.speed;
     }
 
     protected override void Update()
     {
-        if (bulletSO.bulletType == BulletType.Projectile)
+        if (gunSO.bulletType == BulletType.Projectile)
         { 
             Launch();
         }
@@ -37,17 +49,17 @@ public class Bullet : Hurt
 
     private void Launch()
     {
-        gameObject.transform.Translate(Vector2.right * bulletSO.speed * Time.deltaTime);
+        gameObject.transform.Translate(Vector2.right * speedSum * Time.deltaTime);
     }
 
     protected override void OnTriggerEnter2D(Collider2D other)
     {
-        if (IsColliderInLayerMask(other, bulletSO.hurtMask))
+        if (IsColliderInLayerMask(other, gunSO.hurtMask))
         {
             HandleEnemyCollision(other);
         }
 
-        if (IsColliderInLayerMask(other, bulletSO.collideMask))
+        if (IsColliderInLayerMask(other, gunSO.collideMask))
         {
             ProjectileDeath();
         }
@@ -57,9 +69,9 @@ public class Bullet : Hurt
     {
         if (hitEnemies.Contains(other.gameObject)) return;
         
-        if (bulletSO.pierce > 0)
+        if (pierceSum > 0)
         {
-            bulletSO.pierce--;
+            gunSO.pierce--;
             hitEnemies.Add(other.gameObject);
             CreatePierceEffect();
         }
@@ -73,15 +85,15 @@ public class Bullet : Hurt
 
     public void AlertGameManagerOnHit(Collider2D other)
     {
-        if (IsColliderInLayerMask(other, bulletSO.hurtMask))
+        if (IsColliderInLayerMask(other, gunSO.hurtMask))
         {
-            gameManager.onProjectileHit.Invoke(baseWeaponDamage, baseWeaponKnockback, other.gameObject, gameObject); // Notify GameManager about the hit
+            gameManager.onProjectileHit.Invoke(damageSum, knockbackSum, other.gameObject, gameObject); // Notify GameManager about the hit
         }
     }
 
     private void ProjectileDeath()
     {
-        GameObject hitInstance = Instantiate(bulletSO.hitEffectPrefab, transform.position, Quaternion.identity);
+        GameObject hitInstance = Instantiate(gunSO.hitEffectPrefab, transform.position, Quaternion.identity);
         ChangeColorAndScale(hitInstance);
         Destroy(hitInstance, 0.3f);
         Destroy(gameObject);
@@ -89,7 +101,7 @@ public class Bullet : Hurt
 
     private void CreatePierceEffect()
     {
-        GameObject hitInstance = Instantiate(bulletSO.hitEffectPrefab, transform.position, Quaternion.identity);
+        GameObject hitInstance = Instantiate(gunSO.hitEffectPrefab, transform.position, Quaternion.identity);
         ChangeColorAndScale(hitInstance);
         hitInstance.transform.localScale = Vector2.Scale(hitInstance.transform.localScale, new Vector2(0.5f, 0.5f));    
         Destroy(hitInstance, 0.3f);

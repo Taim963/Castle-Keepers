@@ -65,16 +65,22 @@ public class Player : Entity
         canDash = true;
     }
 
+    public override void TakeKnockback(float knockbackForce, Vector2 direction, float knockbackStunDuration)
+    {
+        StartCoroutine(MoveCoolDownRoutine(knockbackStunDuration));
+        rb.AddForce(direction.normalized * knockbackForce, ForceMode2D.Impulse);
+    }
+
     public override void TakeKnockback(float knockbackForce, Vector2 direction)
     {
         StartCoroutine(MoveCoolDownRoutine());
         rb.AddForce(direction.normalized * knockbackForce, ForceMode2D.Impulse);
     }
 
-    private IEnumerator MoveCoolDownRoutine()
+    private IEnumerator MoveCoolDownRoutine(float knockbackStunDuration = 0.3f)
     {
         canMove = false;
-        yield return new WaitForSeconds(0.3f);
+        yield return new WaitForSeconds(knockbackStunDuration);
         canMove = true;
     }
 }

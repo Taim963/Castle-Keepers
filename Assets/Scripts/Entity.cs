@@ -34,9 +34,14 @@ public class Entity : MonoBehaviour
         }
     }
 
-    public virtual void TakeKnockback(float knockbackForce, Vector2 direction)
+    public virtual void TakeKnockback(float knockbackForce, Vector2 direction, float knockbackStunDuration)
     {
         // Very different compared to enemies and the player, so, no default implementation here.
+    }
+
+    public virtual void TakeKnockback(float knockbackForce, Vector2 direction)
+    { 
+
     }
 
     protected virtual void Die()
