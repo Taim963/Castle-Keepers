@@ -12,7 +12,7 @@ public class Bullet : Hurt
     private int pierceSum;
     private float speedSum;
 
-    [HideInInspector] public WeaponSO gunSO; // refrence to the gun data
+    [HideInInspector] public BulletWeaponSO bulletWeaponSO; // refrence to the gun data
 
     private HashSet<GameObject> hitEnemies = new HashSet<GameObject>(); // Track enemies, not colliders
 
@@ -22,9 +22,9 @@ public class Bullet : Hurt
     {
         gameManager = GameManager.instance; // Get the GameManager instance
 
-        if (gunSO.bulletType == BulletType.Projectile)
+        if (bulletWeaponSO.bulletType == BulletWeaponSO.BulletType.Projectile)
         {
-            Invoke("ProjectileDeath", gunSO.lifetime);
+            Invoke("ProjectileDeath", bulletWeaponSO.lifetime);
         }
 
         SetVars();
@@ -32,19 +32,19 @@ public class Bullet : Hurt
 
     private void SetVars()
     {
-        damageSum = gunSO.bulletDamage + gunSO.damage;
-        knockbackSum = gunSO.bulletKnockbackForce + gunSO.knockbackForce;
-        pierceSum = gunSO.bulletPierce + gunSO.pierce;
-        speedSum = gunSO.bulletSpeed + gunSO.speed;
+        damageSum = bulletWeaponSO.bulletDamage + bulletWeaponSO.damage;
+        knockbackSum = bulletWeaponSO.bulletKnockbackForce + bulletWeaponSO.knockbackForce;
+        pierceSum = bulletWeaponSO.bulletPierce + bulletWeaponSO.pierce;
+        speedSum = bulletWeaponSO.bulletSpeed + bulletWeaponSO.speed;
     }
 
     protected override void Update()
     {
-        if (gunSO.bulletType == BulletType.Projectile)
-        { 
+        if (bulletWeaponSO.bulletType == BulletWeaponSO.BulletType.Projectile)
+        {
             Launch();
         }
-        
+
     }
 
     private void Launch()
@@ -54,12 +54,12 @@ public class Bullet : Hurt
 
     protected override void OnTriggerEnter2D(Collider2D other)
     {
-        if (IsColliderInLayerMask(other, gunSO.hurtMask))
+        if (IsColliderInLayerMask(other, bulletWeaponSO.hurtMask))
         {
             HandleEnemyCollision(other);
         }
 
-        if (IsColliderInLayerMask(other, gunSO.collideMask))
+        if (IsColliderInLayerMask(other, bulletWeaponSO.collideMask))
         {
             ProjectileDeath();
         }
@@ -68,10 +68,10 @@ public class Bullet : Hurt
     private void HandleEnemyCollision(Collider2D other)
     {
         if (hitEnemies.Contains(other.gameObject)) return;
-        
+
         if (pierceSum > 0)
         {
-            gunSO.pierce--;
+            bulletWeaponSO.pierce--;
             hitEnemies.Add(other.gameObject);
             CreatePierceEffect();
         }
@@ -85,7 +85,7 @@ public class Bullet : Hurt
 
     public void AlertGameManagerOnHit(Collider2D other)
     {
-        if (IsColliderInLayerMask(other, gunSO.hurtMask))
+        if (IsColliderInLayerMask(other, bulletWeaponSO.hurtMask))
         {
             gameManager.onProjectileHit.Invoke(damageSum, knockbackSum, other.gameObject, gameObject); // Notify GameManager about the hit
         }
@@ -93,7 +93,7 @@ public class Bullet : Hurt
 
     private void ProjectileDeath()
     {
-        GameObject hitInstance = Instantiate(gunSO.hitEffectPrefab, transform.position, Quaternion.identity);
+        GameObject hitInstance = Instantiate(bulletWeaponSO.hitEffectPrefab, transform.position, Quaternion.identity);
         ChangeColorAndScale(hitInstance);
         Destroy(hitInstance, 0.3f);
         Destroy(gameObject);
@@ -101,9 +101,9 @@ public class Bullet : Hurt
 
     private void CreatePierceEffect()
     {
-        GameObject hitInstance = Instantiate(gunSO.hitEffectPrefab, transform.position, Quaternion.identity);
+        GameObject hitInstance = Instantiate(bulletWeaponSO.hitEffectPrefab, transform.position, Quaternion.identity);
         ChangeColorAndScale(hitInstance);
-        hitInstance.transform.localScale = Vector2.Scale(hitInstance.transform.localScale, new Vector2(0.5f, 0.5f));    
+        hitInstance.transform.localScale = Vector2.Scale(hitInstance.transform.localScale, new Vector2(0.5f, 0.5f));
         Destroy(hitInstance, 0.3f);
     }
 

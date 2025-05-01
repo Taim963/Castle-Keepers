@@ -12,15 +12,35 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2fbe7cd0f330c9c42add0053173a5ea4, type: 3}
   m_Name: SwordSO
   m_EditorClassIdentifier: 
-  swordType: 0
-  hasBullet: 0
-  hasAltFire: 0
-  hasSpecial: 0
-  projectilePrefab: {fileID: 0}
   damage: 10
   knockbackForce: 1
-  swingSpeed: 1
-  cooldown: 0.3
+  pierce: 0
+  selfKnockbackForce: 0
+  cooldown: 0
+  preFireCooldown: 0
+  hasAltFire: 0
+  hasSpecial: 0
+  bulletFireType: 0
+  bulletType: 0
+  projectilePrefab: {fileID: 0}
+  LineRendererPrefab: {fileID: 0}
+  hitEffectPrefab: {fileID: 0}
+  randomSpread: 0.1
+  bulletsPerBurst: 3
+  burstCooldown: 0
+  speed: 10
+  lifetime: 2
+  range: 10
+  collideMask:
+    serializedVersion: 2
+    m_Bits: 0
   hurtMask:
     serializedVersion: 2
     m_Bits: 64
+  bulletDamage: 0
+  bulletKnockbackForce: 0
+  bulletPierce: 0
+  bulletSpeed: 0
+  swordSwingType: 0
+  hasBullet: 1
+  swingSpeed: 0.1

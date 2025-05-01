@@ -31,7 +31,7 @@ public class Gun : Weapon
         spreadRotation = Quaternion.Euler(0, 0, randomAngle);
 
         // Determine how many line renderers we need.
-        int numRenderers = gunSO.bulletFireType == bulletFireType.Burst ? gunSO.bulletsPerBurst * 2: 1;
+        int numRenderers = gunSO.bulletFireType == BulletWeaponSO.BulletFireType.Burst ? gunSO.bulletsPerBurst * 2 : 1;
         lineRenderers = new LineRenderer[numRenderers];
 
         // Instantiate line renderers from the prefab defined in BulletSO.
@@ -62,27 +62,29 @@ public class Gun : Weapon
     {
         if (!isFiring)
         {
-            if (gunSO.bulletFireType == bulletFireType.SingleShot)
+            if (gunSO.bulletFireType == BulletWeaponSO.BulletFireType.SingleShot)
                 StartCoroutine(SingleShotFire());
-            else if (gunSO.bulletFireType == bulletFireType.Burst)
+            else if (gunSO.bulletFireType == BulletWeaponSO.BulletFireType.Burst)
                 StartCoroutine(BurstFire());
         }
     }
 
-    
+
     private IEnumerator SingleShotFire()
     {
         isFiring = true;
+
+        Quaternion finalRotation = transform.rotation;
         while (Input.GetMouseButton(0))
         {
             yield return new WaitForSeconds(gunSO.preFireCooldown);
-            Quaternion finalRotation = transform.rotation;
+            finalRotation = transform.rotation;
             if (gunSO.randomSpread > 0)
             {
                 GetRandomBulletSpread(ref finalRotation);
             }
 
-            if (gunSO.bulletType == BulletType.Projectile)
+            if (gunSO.bulletType == BulletWeaponSO.BulletType.Projectile)
                 InstantiateProjectile(finalRotation);
             else
                 InstantiateHitScan(finalRotation);
@@ -102,6 +104,7 @@ public class Gun : Weapon
         while (Input.GetMouseButton(0))
         {
             yield return new WaitForSeconds(gunSO.preFireCooldown);
+            finalRotation = transform.rotation;
             for (int i = 0; i < gunSO.bulletsPerBurst; i++)
             {
                 if (gunSO.randomSpread > 0)
@@ -109,7 +112,7 @@ public class Gun : Weapon
                     GetRandomBulletSpread(ref finalRotation);
                 }
 
-                if (gunSO.bulletType == BulletType.Projectile)
+                if (gunSO.bulletType == BulletWeaponSO.BulletType.Projectile)
                     InstantiateProjectile(finalRotation);
                 else
                     InstantiateHitScan(finalRotation);
@@ -138,15 +141,14 @@ public class Gun : Weapon
 
     private void InstantiateProjectile(Quaternion finalRotation)
     {
-        // Simply instantiate the projectile prefab.
-        Instantiate(gunSO.projectilePrefab, transform.position, finalRotation);
         GameObject bulletObj = Instantiate(gunSO.projectilePrefab, transform.position, finalRotation);
         if (bulletObj.TryGetComponent<Bullet>(out var bulletComponent))
         {
-            bulletComponent.gunSO = gunSO;
+            bulletComponent.bulletWeaponSO = gunSO;
             // Add any other bullet setup here
         }
     }
+
 
     private void InstantiateHitScan(Quaternion finalRotation)
     {

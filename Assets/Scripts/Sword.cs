@@ -19,6 +19,10 @@ public class Sword : Weapon
     private LineRenderer[] lineRenderers;
     private int currentLineIndex = 0;
 
+    public Transform holder;
+    public float horizontalRadius = 5f;
+    public float verticalRadius = 3f;
+
     // Cache the animation clip and actual duration
     private AnimationClip slashAnimation;
     private float slashDuration;
@@ -38,14 +42,14 @@ public class Sword : Weapon
         spreadRotation = Quaternion.Euler(0, 0, randomAngle);
 
         // Determine how many line renderers we need.
-        int numRenderers = swordSO.bulletFireType == SwordBulletFireType.Burst ? swordSO.bulletsPerBurst * 2 : 1;
+        int numRenderers = swordSO.bulletFireType == BulletWeaponSO.BulletFireType.Burst ? swordSO.bulletsPerBurst * 2 : 1;
         lineRenderers = new LineRenderer[numRenderers];
 
         // Instantiate line renderers from the prefab defined in BulletSO.
         for (int i = 0; i < numRenderers; i++)
         {
             // Instantiate the prefab as a child of this gun.
-            GameObject lineObj = Instantiate(gunSO.LineRendererPrefab, transform);
+            GameObject lineObj = Instantiate(swordSO.LineRendererPrefab, transform);
             lineObj.name = "LineRenderer_" + i;
 
             // We assume the prefab already has a configured LineRenderer.
@@ -82,12 +86,14 @@ public class Sword : Weapon
         if (!isSwinging)
         {
             StartCoroutine(SwingSword());
+            OnClickRotate();
         }
     }
 
     private IEnumerator SwingSword()
     {
         isSwinging = true;
+
         WaitForSeconds preFireWait = new WaitForSeconds(swordSO.preFireCooldown);
         WaitForSeconds cooldownWait = new WaitForSeconds(swordSO.cooldown);
         WaitForSeconds slashWait = new WaitForSeconds(slashDuration);
@@ -100,11 +106,15 @@ public class Sword : Weapon
             }
 
             animator.SetTrigger("Swing");
+
             swordCollider.enabled = true;
             yield return slashWait;
             swordCollider.enabled = false;
 
-            hitEnemies.Clear(); // Clear hit enemies after each swing
+            transform.rotation = Quaternion.Euler(0, 0, 0);
+            print("Sword rotation reset");
+
+            hitEnemies.Clear();
             yield return cooldownWait;
         }
         isSwinging = false;
@@ -122,6 +132,51 @@ public class Sword : Weapon
                 other.gameObject,
                 gameObject
             );
+        }
+    }
+
+    private void OnClickRotate()
+    {
+        // Get mouse position in world space
+        Vector2 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+
+        // Calculate direction from center to mouse
+        Vector2 directionToMouse = (mousePos - (Vector2)holder.position).normalized;
+
+        // Calculate position on ellipse
+        float angle = Mathf.Atan2(directionToMouse.y, directionToMouse.x);
+        float x = holder.position.x + (horizontalRadius * Mathf.Cos(angle));
+        float y = holder.position.y + (verticalRadius * Mathf.Sin(angle));
+
+        // Set position
+        transform.position = new Vector3(x, y, transform.position.z);
+
+        // Calculate rotation to look at mouse with X axis
+        float rotationAngle = Mathf.Atan2(mousePos.y - transform.position.y, mousePos.x - transform.position.x);
+        transform.rotation = Quaternion.Euler(0, 0, (rotationAngle * Mathf.Rad2Deg) - 90f);  // Subtract 90 degrees
+    }
+
+
+    private void OnDrawGizmosSelected()
+    {
+        if (holder != null)
+        {
+            Gizmos.color = Color.green;
+            const int segments = 50;
+            Vector3[] points = new Vector3[segments + 1];
+
+            for (int i = 0; i <= segments; i++)
+            {
+                float angle = i * 2 * Mathf.PI / segments;
+                float x = Mathf.Cos(angle) * horizontalRadius;
+                float y = Mathf.Sin(angle) * verticalRadius;
+                points[i] = holder.position + new Vector3(x, y, 0);
+            }
+
+            for (int i = 0; i < segments; i++)
+            {
+                Gizmos.DrawLine(points[i], points[i + 1]);
+            }
         }
     }
 }

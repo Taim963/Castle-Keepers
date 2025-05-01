@@ -20,14 +20,17 @@ MonoBehaviour:
   preFireCooldown: 0
   hasAltFire: 0
   hasSpecial: 0
-  bulletFireType: 0
-  bulletType: 1
+  bulletFireType: 1
+  bulletType: 0
   projectilePrefab: {fileID: 1888573091861739242, guid: a02edf20c8cca844d89b68a69775454f, type: 3}
-  speed: 30
-  lifetime: 2
-  range: 10
   LineRendererPrefab: {fileID: 7721021915917215875, guid: 2cfad0232a505564eb57f63dad4f3460, type: 3}
   hitEffectPrefab: {fileID: 5764864091735545940, guid: aaec1febfb4f9d049a7a95f33b6fcbd3, type: 3}
+  randomSpread: 8.39
+  bulletsPerBurst: 4
+  burstCooldown: 0
+  speed: 30
+  lifetime: 2
+  range: 118.66
   collideMask:
     serializedVersion: 2
     m_Bits: 4352
@@ -38,9 +41,3 @@ MonoBehaviour:
   bulletKnockbackForce: 0
   bulletPierce: 0
   bulletSpeed: 0
-  bulletFireType: 0
-  bulletType: 1
-  randomSpread: 5
-  pierce: 0
-  bulletsPerBurst: 3
-  burstCooldown: 0

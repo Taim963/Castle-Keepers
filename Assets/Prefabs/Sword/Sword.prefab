@@ -10,9 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2534984576100798557}
   - component: {fileID: 1301872580636494790}
-  - component: {fileID: 87586702046559725}
   - component: {fileID: 5474627135207565572}
-  - component: {fileID: 9098094784430760472}
   m_Layer: 0
   m_Name: Sword
   m_TagString: Untagged
@@ -33,7 +31,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 3933978857977591195}
+  - {fileID: 8868570516231214616}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!61 &1301872580636494790
@@ -82,28 +80,6 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 0.47159117, y: 1.9184251}
   m_EdgeRadius: 0
---- !u!95 &87586702046559725
-Animator:
-  serializedVersion: 7
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1069676105789849652}
-  m_Enabled: 1
-  m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: b2079f1f96e7ac74da34d41fa22a82db, type: 2}
-  m_CullingMode: 0
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 0
-  m_LinearVelocityBlending: 0
-  m_StabilizeFeet: 0
-  m_AnimatePhysics: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorStateOnDisable: 0
-  m_WriteDefaultValuesOnDisable: 0
 --- !u!114 &5474627135207565572
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -117,24 +93,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   swordSO: {fileID: 11400000, guid: 9eb15d0e17bac804b97fb5c8672babca, type: 2}
-  animator: {fileID: 87586702046559725}
---- !u!114 &9098094784430760472
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1069676105789849652}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 91d971db7f2e2194da93827a400dc836, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  center: {fileID: 0}
-  followMouse: 0
-  followMouseAroundTarget: 0
-  horizontalRadius: 0.74
-  verticalRadius: 1.14
+  animator: {fileID: 7952303000651513387}
+  holder: {fileID: 0}
+  horizontalRadius: 0.89
+  verticalRadius: 1.33
 --- !u!1 &5550579816802923803
 GameObject:
   m_ObjectHideFlags: 0
@@ -161,11 +123,11 @@ Transform:
   m_GameObject: {fileID: 5550579816802923803}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.51, z: 0}
+  m_LocalPosition: {x: 0, y: 0.65, z: 0}
   m_LocalScale: {x: 0.2875, y: 2.225, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 2534984576100798557}
+  m_Father: {fileID: 8868570516231214616}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &7973535621282694596
 SpriteRenderer:
@@ -222,3 +184,58 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!1 &7031790990061823006
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8868570516231214616}
+  - component: {fileID: 7952303000651513387}
+  m_Layer: 0
+  m_Name: SwordSpritePivot
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8868570516231214616
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7031790990061823006}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 3933978857977591195}
+  m_Father: {fileID: 2534984576100798557}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!95 &7952303000651513387
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7031790990061823006}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: b2079f1f96e7ac74da34d41fa22a82db, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
