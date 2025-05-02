@@ -93,7 +93,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   swordSO: {fileID: 11400000, guid: 9eb15d0e17bac804b97fb5c8672babca, type: 2}
-  animator: {fileID: 7952303000651513387}
+  animator: {fileID: 0}
   holder: {fileID: 0}
   horizontalRadius: 0.89
   verticalRadius: 1.33
@@ -193,7 +193,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8868570516231214616}
-  - component: {fileID: 7952303000651513387}
   m_Layer: 0
   m_Name: SwordSpritePivot
   m_TagString: Untagged
@@ -217,25 +216,3 @@ Transform:
   - {fileID: 3933978857977591195}
   m_Father: {fileID: 2534984576100798557}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!95 &7952303000651513387
-Animator:
-  serializedVersion: 7
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7031790990061823006}
-  m_Enabled: 1
-  m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: b2079f1f96e7ac74da34d41fa22a82db, type: 2}
-  m_CullingMode: 0
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 0
-  m_LinearVelocityBlending: 0
-  m_StabilizeFeet: 0
-  m_AnimatePhysics: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorStateOnDisable: 0
-  m_WriteDefaultValuesOnDisable: 0

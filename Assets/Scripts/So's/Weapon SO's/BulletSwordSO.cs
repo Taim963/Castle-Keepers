@@ -1,8 +1,7 @@
-using NaughtyAttributes;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "SwordSO", menuName = "Scriptable Objects/SwordSO")]
-public class SwordSO : WeaponSO
+[CreateAssetMenu(fileName = "BulletSwordSO", menuName = "Scriptable Objects/BulletSwordSO")]
+public class BulletSwordSO : BulletWeaponSO
 {
     public enum SwordSwingType
     {
@@ -13,6 +12,7 @@ public class SwordSO : WeaponSO
     #region // Sword Type
     [Header("Sword Type")]
     public SwordSwingType swordSwingType;
+    public new bool hasBullet = false;
     #endregion
 
     #region // Sword Stats

@@ -32,32 +32,9 @@ public class Sword : Weapon
         // Cache components
         gameManager = GameManager.instance;
         swordCollider = GetComponent<Collider2D>();
-        animator = GetComponent<Animator>();
 
         // Cache animation data
         SetupAnimation();
-
-        // Apply initial random spread.
-        float randomAngle = Random.Range(-swordSO.randomSpread, swordSO.randomSpread);
-        spreadRotation = Quaternion.Euler(0, 0, randomAngle);
-
-        // Determine how many line renderers we need.
-        int numRenderers = swordSO.bulletFireType == BulletWeaponSO.BulletFireType.Burst ? swordSO.bulletsPerBurst * 2 : 1;
-        lineRenderers = new LineRenderer[numRenderers];
-
-        // Instantiate line renderers from the prefab defined in BulletSO.
-        for (int i = 0; i < numRenderers; i++)
-        {
-            // Instantiate the prefab as a child of this gun.
-            GameObject lineObj = Instantiate(swordSO.LineRendererPrefab, transform);
-            lineObj.name = "LineRenderer_" + i;
-
-            // We assume the prefab already has a configured LineRenderer.
-            LineRenderer lr = lineObj.GetComponent<LineRenderer>();
-            lr.positionCount = 2;
-            lr.enabled = false;
-            lineRenderers[i] = lr;
-        }
 
         Holder = GetComponentInParent<Entity>();
     }
@@ -86,7 +63,6 @@ public class Sword : Weapon
         if (!isSwinging)
         {
             StartCoroutine(SwingSword());
-            OnClickRotate();
         }
     }
 
@@ -97,6 +73,7 @@ public class Sword : Weapon
         WaitForSeconds preFireWait = new WaitForSeconds(swordSO.preFireCooldown);
         WaitForSeconds cooldownWait = new WaitForSeconds(swordSO.cooldown);
         WaitForSeconds slashWait = new WaitForSeconds(slashDuration);
+        Vector2 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
 
         while (Input.GetMouseButton(0))
         {
@@ -108,11 +85,12 @@ public class Sword : Weapon
             animator.SetTrigger("Swing");
 
             swordCollider.enabled = true;
+            OnClickRotate(mousePos);
             yield return slashWait;
+            ResetRotation();
             swordCollider.enabled = false;
 
             transform.rotation = Quaternion.Euler(0, 0, 0);
-            print("Sword rotation reset");
 
             hitEnemies.Clear();
             yield return cooldownWait;
@@ -135,7 +113,25 @@ public class Sword : Weapon
         }
     }
 
-    private void OnClickRotate()
+    private void OnClickRotate(Vector2 mousePos)
+    {
+        // Calculate direction from center to mouse
+        Vector2 directionToMouse = (mousePos - (Vector2)holder.position).normalized;
+
+        // Calculate position on ellipse
+        float angle = Mathf.Atan2(directionToMouse.y, directionToMouse.x);
+        float x = holder.position.x + (horizontalRadius * Mathf.Cos(angle));
+        float y = holder.position.y + (verticalRadius * Mathf.Sin(angle));
+
+        // Set position
+        transform.position = new Vector3(x, y, transform.position.z);
+
+        // Calculate rotation to look at mouse with X axis
+        float rotationAngle = Mathf.Atan2(mousePos.y - transform.position.y, mousePos.x - transform.position.x);
+        transform.rotation = Quaternion.Euler(0, 0, (rotationAngle * Mathf.Rad2Deg) - 90f);  // Subtract 90 degrees
+    }
+
+    private void ResetRotation()
     {
         // Get mouse position in world space
         Vector2 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
@@ -147,9 +143,6 @@ public class Sword : Weapon
         float angle = Mathf.Atan2(directionToMouse.y, directionToMouse.x);
         float x = holder.position.x + (horizontalRadius * Mathf.Cos(angle));
         float y = holder.position.y + (verticalRadius * Mathf.Sin(angle));
-
-        // Set position
-        transform.position = new Vector3(x, y, transform.position.z);
 
         // Calculate rotation to look at mouse with X axis
         float rotationAngle = Mathf.Atan2(mousePos.y - transform.position.y, mousePos.x - transform.position.x);
