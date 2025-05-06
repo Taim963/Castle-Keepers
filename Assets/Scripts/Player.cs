@@ -5,9 +5,11 @@ public class Player : Entity
 {
     public PlayerSO playerSO;
     public override EntitySO entitySO => playerSO;
+    public Animator animator;
 
     private PlayerStateManager stateManager;
     private Rigidbody2D rb;
+    private Weapon weaponS;
 
     private Vector2 movementForce;
     [HideInInspector] public bool canDash = true;
@@ -18,38 +20,44 @@ public class Player : Entity
         base.Awake();
         stateManager = GetComponent<PlayerStateManager>();
         rb = GetComponent<Rigidbody2D>();
+        weaponS = GetComponentInChildren<Weapon>();
     }
 
     public void Move(Vector2 moveInput)
     {
         if (!canMove) return;
-        if (moveInput.magnitude > 0.1f)
+        
+        rb.MovePosition(rb.position + moveInput * playerSO.speed * Time.fixedDeltaTime);
+
+        UpdateSprite();
+    }
+
+    private void UpdateSprite()
+    {
+        float horizontalInput = Input.GetAxisRaw("Horizontal");
+        float verticalInput = Input.GetAxisRaw("Vertical");
+
+        Vector2 moveInput = new Vector2(horizontalInput, verticalInput).normalized;
+
+        animator.SetFloat("Vertical", moveInput.y);
+        animator.SetFloat("Speed", moveInput.sqrMagnitude);
+
+        FlipPlayer(moveInput);
+    }
+
+    private void FlipPlayer(Vector2 moveInput)
+    {
+        if (weaponS.isFiring) return;
+        if (moveInput.x > 0.1f)
         {
-            // Compute the desired target force
-            Vector2 targetForce = moveInput * playerSO.speed;
-
-            // Smoothly blend current movementForce to the new targetForce using the acceleration rate
-            movementForce = Vector2.MoveTowards(
-                movementForce,
-                targetForce,
-                playerSO.accelerationRate * Time.fixedDeltaTime
-            );
-
-            // Apply the movement force
-            rb.AddForce(movementForce, ForceMode2D.Force);
+            // Move right
+            transform.localScale = new Vector3(1, 1, 1);
         }
-        else
+        else if (moveInput.x < -0.1f)
         {
-            // Decelerate: move the velocity straight toward zero at a fixed speed.
-            rb.linearVelocity = Vector2.MoveTowards(
-                rb.linearVelocity,
-                Vector2.zero,
-                playerSO.decelerationRate * Time.fixedDeltaTime
-            );
+            // Move left
+            transform.localScale = new Vector3(-1, 1, 1);
         }
-
-        // Clamp the total velocity to remain within the maximum speed.
-        rb.linearVelocity = Vector2.ClampMagnitude(rb.linearVelocity, playerSO.speed);
     }
 
     public void Dash(Vector2 dashDirection)

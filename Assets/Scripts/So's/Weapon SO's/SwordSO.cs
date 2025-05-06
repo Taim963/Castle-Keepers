@@ -18,5 +18,6 @@ public class SwordSO : WeaponSO
     #region // Sword Stats
     [Header("Sword Stats")]
     public float swingSpeed;
+    public LayerMask hurtMask;
     #endregion
 }

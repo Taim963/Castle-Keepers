@@ -7,7 +7,6 @@ public class Gun : Weapon
 {
     public GunSO gunSO; // Reference to the GunSO scriptable object
 
-    private bool isFiring = false;
     private Quaternion spreadRotation;
     private Bullet bullet;
 

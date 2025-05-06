@@ -101,4 +101,8 @@ public class GameManager : MonoBehaviour
         }
     }
     #endregion
+
+    #region // Camera zoom
+
+    #endregion
 }

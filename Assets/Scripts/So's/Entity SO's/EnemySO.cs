@@ -4,16 +4,10 @@ using UnityEngine;
 using UnityEngine.AI;
 
 [CreateAssetMenu(fileName = "EnemySO", menuName = "Scriptable Objects/EnemySO")]
-public class EnemySO : ScriptableObject
+public class EnemySO : ChaserSO
 {
-    #region // Navigation
-    [Header("Navigation")]
-    public LayerMask rayCastCollide; // LayerMask for raycast collision
-    #endregion
-
     #region // Health Settings
     [Header("Health Settings")]
-    public int maxHealth = 30;
     public int goldValue = 2;
     #endregion
 
@@ -23,11 +17,5 @@ public class EnemySO : ScriptableObject
     public float attackRange = 3f;
     public float attackOffset = 1.2f;
     public float attackCooldown = 1f;
-    public float knockbackResistance = 0.5f; // 0 = no resistance (full knockback), 1 = full resistance (no knockback)
-    #endregion
-
-    #region // Effects
-    [Header("Effects")]
-    public GameObject deathEffect;
     #endregion
 }

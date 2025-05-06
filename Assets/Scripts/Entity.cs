@@ -8,8 +8,6 @@ public class Entity : MonoBehaviour
     private int health;
     private HealthBar healthBar;
 
-    
-
     protected virtual void Awake()
     {
         healthBar = GetComponentInChildren<HealthBar>();

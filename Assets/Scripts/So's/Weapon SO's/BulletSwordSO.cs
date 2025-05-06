@@ -19,4 +19,9 @@ public class BulletSwordSO : BulletWeaponSO
     [Header("Sword Stats")]
     public float swingSpeed;
     #endregion
+
+    #region // Sword bullet stats
+    [Header("Sword Bullet Stats")]
+    public float cooldown;
+    #endregion
 }
