@@ -14,6 +14,11 @@ public class Entity : MonoBehaviour
         health = entitySO.maxHealth;
         healthBar.SetMaxHealth(health);
     }
+
+    protected virtual void Start()
+    {
+
+    }
     public virtual void OnHurtCollide(int damage, float knockbackForce, GameObject thisEnemy, GameObject projectile)
     {
         if (thisEnemy != gameObject) return;

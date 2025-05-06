@@ -4,6 +4,6 @@ using UnityEngine;
 public class ChaserSO : EntitySO
 {
     [Header("Chaser Settings")]
-    public NavMeshHandler navMeshHandler;
     public LayerMask rayCastCollide;
+    public float attackRange;
 }

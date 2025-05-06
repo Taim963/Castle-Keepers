@@ -20,8 +20,8 @@ MonoBehaviour:
   preFireCooldown: 0
   hasAltFire: 0
   hasSpecial: 0
-  swordSwingType: 0
-  swingSpeed: 1
+  swordSwingType: 1
+  swingSpeed: 0.3
   hurtMask:
     serializedVersion: 2
     m_Bits: 64

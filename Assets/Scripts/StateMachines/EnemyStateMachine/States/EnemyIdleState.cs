@@ -14,10 +14,10 @@ public class EnemyIdleState : EnemyBaseState
 
     public override EnemyStateManager.EnemyState GetNextState()
     {
-        //if (moveHorizontal != 0 || moveVertical != 0)
-        //{
-        //    return EnemyStateManager.EnemyState.Chase;
-        //}
+        if (stateMachine.targetInfo)
+        {
+            return EnemyStateManager.EnemyState.Chase;
+        }
 
         return StateKey; // Stay in idle state
     }
