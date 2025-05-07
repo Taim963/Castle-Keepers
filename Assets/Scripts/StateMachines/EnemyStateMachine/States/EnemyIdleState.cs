@@ -14,7 +14,7 @@ public class EnemyIdleState : EnemyBaseState
 
     public override EnemyStateManager.EnemyState GetNextState()
     {
-        if (stateMachine.targetInfo)
+        if (stateMachine.EnemyScript.targetInfo.Count > 0)
         {
             return EnemyStateManager.EnemyState.Chase;
         }

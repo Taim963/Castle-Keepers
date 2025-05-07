@@ -12,7 +12,7 @@ public class PlayerMoveState : PlayerBaseState
         Vector2 moveInput = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
         moveInput.Normalize(); // Normalize to prevent faster diagonal movement
 
-        player.Move(moveInput);
+        stateMachine.PlayerScript.Move(moveInput);
     }
 
     public override void ExitState()

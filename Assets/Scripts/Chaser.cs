@@ -16,7 +16,7 @@ public class TargetEntry
     public override EntitySO entitySO => ChaserSO;
 
     [SerializeField] private List<TargetEntry> targetList = new List<TargetEntry>();
-    private Dictionary<string, int> targetInfo = new Dictionary<string, int>();
+    [HideInInspector] public Dictionary<string, int> targetInfo = new Dictionary<string, int>();
 
     private NavMeshAgent agent;
     private GameObject currentTarget;
